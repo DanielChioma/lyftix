@@ -34,4 +34,19 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errorResponse);
     }
+
+    @ExceptionHandler(InvalidWorkoutTimeException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidWorkoutTimeException(
+            InvalidWorkoutTimeException exception
+    ) {
+
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid Workout Time",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
 }

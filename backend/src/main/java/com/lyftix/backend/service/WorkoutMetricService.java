@@ -4,10 +4,9 @@ import com.lyftix.backend.dto.CreateWorkoutMetricRequest;
 import com.lyftix.backend.dto.WorkoutMetricResponse;
 import com.lyftix.backend.model.WorkoutMetric;
 import com.lyftix.backend.repository.WorkoutMetricRepository;
-
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import com.lyftix.backend.exception.InvalidWorkoutTimeException;
 
 @Service
 public class WorkoutMetricService {
@@ -22,6 +21,11 @@ public class WorkoutMetricService {
 
     public WorkoutMetricResponse createWorkoutMetric(CreateWorkoutMetricRequest request) {
 
+        if (request.endedAt().isBefore(request.startedAt())) {
+            throw new InvalidWorkoutTimeException(
+                    "endedAt must be after startedAt"
+            );
+        }
         WorkoutMetric workoutMetric = new WorkoutMetric();
 
         workoutMetric.setWorkoutType((request.workoutType()));
@@ -42,6 +46,8 @@ public class WorkoutMetricService {
                 savedWorkoutMetric.getEndedAt()
 
         );
+
+
 
     }
 
