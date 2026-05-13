@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/workouts")
@@ -23,6 +25,11 @@ public class WorkoutMetricController {
             @Valid @RequestBody CreateWorkoutMetricRequest request
     ) {
         return workoutMetricService.createWorkoutMetric(request);
+    }
+
+    @GetMapping
+    public List<WorkoutMetricResponse> getAllWorkoutMetrics() {
+        return workoutMetricService.getAllWorkoutMetrics();
     }
 
 

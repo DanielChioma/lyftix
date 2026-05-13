@@ -3,17 +3,22 @@ package com.lyftix.backend.service;
 import com.lyftix.backend.dto.CreateWorkoutMetricRequest;
 import com.lyftix.backend.dto.WorkoutMetricResponse;
 import com.lyftix.backend.model.WorkoutMetric;
-import com.lyftix.backend.repository.WorkoutModelRepository;
+import com.lyftix.backend.repository.WorkoutMetricRepository;
+
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class WorkoutMetricService {
 
-    private final WorkoutModelRepository workoutModelRepository;
+    private final WorkoutMetricRepository workoutMetricRepository;
 
-    public WorkoutMetricService(WorkoutModelRepository workoutModelRepository) {
-        this.workoutModelRepository = workoutModelRepository;
+    public WorkoutMetricService(WorkoutMetricRepository workoutMetricRepository) {
+        this.workoutMetricRepository = workoutMetricRepository;
     }
+
+
 
     public WorkoutMetricResponse createWorkoutMetric(CreateWorkoutMetricRequest request) {
 
@@ -25,7 +30,7 @@ public class WorkoutMetricService {
         workoutMetric.setStartedAt(request.startedAt());
         workoutMetric.setEndedAt(request.endedAt());
 
-        WorkoutMetric savedWorkoutMetric = workoutModelRepository.save(workoutMetric);
+        WorkoutMetric savedWorkoutMetric = workoutMetricRepository.save(workoutMetric);
 
 
         return new WorkoutMetricResponse(
@@ -38,5 +43,19 @@ public class WorkoutMetricService {
 
         );
 
+    }
+
+    public List<WorkoutMetricResponse> getAllWorkoutMetrics() {
+        return workoutMetricRepository.findAll()
+                .stream()
+                .map(workoutMetric -> new WorkoutMetricResponse(
+                        workoutMetric.getId(),
+                        workoutMetric.getWorkoutType(),
+                        workoutMetric.getIntensity(),
+                        workoutMetric.getCaloriesBurned(),
+                        workoutMetric.getStartedAt(),
+                        workoutMetric.getEndedAt()
+                ))
+                .toList();
     }
 }
