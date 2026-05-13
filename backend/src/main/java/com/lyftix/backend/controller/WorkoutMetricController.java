@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
+import java.time.Instant;
+
 import java.util.List;
 
 
@@ -40,6 +42,23 @@ public class WorkoutMetricController {
             @RequestParam(defaultValue = "startedAt") String sortBy
     ) {
         return workoutMetricService.getWorkoutMetrics(page, size, sortBy);
+    }
+
+    @GetMapping("/filter")
+    public Page<WorkoutMetricResponse> getWorkoutMetricsByDateRange(
+            @RequestParam Instant start,
+            @RequestParam Instant end,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "startedAt") String sortBy
+    ) {
+        return workoutMetricService.getWorkoutMetricsByDateRange(
+                start,
+                end,
+                page,
+                size,
+                sortBy
+        );
     }
 
 
