@@ -6,6 +6,7 @@ import com.lyftix.backend.service.WorkoutMetricService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -30,6 +31,15 @@ public class WorkoutMetricController {
     @GetMapping
     public List<WorkoutMetricResponse> getAllWorkoutMetrics() {
         return workoutMetricService.getAllWorkoutMetrics();
+    }
+
+    @GetMapping("/paged")
+    public Page<WorkoutMetricResponse> getWorkoutMetrics(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "startedAt") String sortBy
+    ) {
+        return workoutMetricService.getWorkoutMetrics(page, size, sortBy);
     }
 
 

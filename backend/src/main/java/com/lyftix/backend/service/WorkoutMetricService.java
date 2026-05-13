@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import com.lyftix.backend.exception.InvalidWorkoutTimeException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 @Service
 public class WorkoutMetricService {
 
@@ -63,5 +68,28 @@ public class WorkoutMetricService {
                         workoutMetric.getEndedAt()
                 ))
                 .toList();
+    }
+
+    public Page<WorkoutMetricResponse> getWorkoutMetrics(
+            int page,
+            int size,
+            String sortBy
+    ) {
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(sortBy).descending()
+        );
+
+        return workoutMetricRepository.findAll(pageable)
+                .map(workoutMetric -> new WorkoutMetricResponse(
+                        workoutMetric.getId(),
+                        workoutMetric.getWorkoutType(),
+                        workoutMetric.getIntensity(),
+                        workoutMetric.getCaloriesBurned(),
+                        workoutMetric.getStartedAt(),
+                        workoutMetric.getEndedAt()
+                ));
     }
 }
