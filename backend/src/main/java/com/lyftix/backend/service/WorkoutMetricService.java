@@ -50,7 +50,9 @@ public class WorkoutMetricService {
                 savedWorkoutMetric.getIntensity(),
                 savedWorkoutMetric.getCaloriesBurned(),
                 savedWorkoutMetric.getStartedAt(),
-                savedWorkoutMetric.getEndedAt()
+                savedWorkoutMetric.getEndedAt(),
+                workoutMetric.getCreatedAt(),
+                workoutMetric.getUpdatedAt()
 
         );
 
@@ -67,7 +69,9 @@ public class WorkoutMetricService {
                         workoutMetric.getIntensity(),
                         workoutMetric.getCaloriesBurned(),
                         workoutMetric.getStartedAt(),
-                        workoutMetric.getEndedAt()
+                        workoutMetric.getEndedAt(),
+                        workoutMetric.getCreatedAt(),
+                        workoutMetric.getUpdatedAt()
                 ))
                 .toList();
     }
@@ -91,7 +95,9 @@ public class WorkoutMetricService {
                         workoutMetric.getIntensity(),
                         workoutMetric.getCaloriesBurned(),
                         workoutMetric.getStartedAt(),
-                        workoutMetric.getEndedAt()
+                        workoutMetric.getEndedAt(),
+                        workoutMetric.getCreatedAt(),
+                        workoutMetric.getUpdatedAt()
                 ));
     }
 
@@ -117,7 +123,9 @@ public class WorkoutMetricService {
                         workoutMetric.getIntensity(),
                         workoutMetric.getCaloriesBurned(),
                         workoutMetric.getStartedAt(),
-                        workoutMetric.getEndedAt()
+                        workoutMetric.getEndedAt(),
+                        workoutMetric.getCreatedAt(),
+                        workoutMetric.getUpdatedAt()
                 ));
     }
 

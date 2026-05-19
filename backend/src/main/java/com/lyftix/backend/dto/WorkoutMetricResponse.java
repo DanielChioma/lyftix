@@ -8,6 +8,9 @@ public record WorkoutMetricResponse(
         Integer intensity,
         Integer caloriesBurned,
         Instant startedAt,
-        Instant endedAt
+        Instant endedAt,
+        Instant createdAt,
+        Instant updatedAt
+
 ) {
 }
