@@ -28,7 +28,7 @@ public class WorkoutMetricService {
 
     public WorkoutMetricResponse createWorkoutMetric(CreateWorkoutMetricRequest request) {
 
-        if (request.endedAt().isBefore(request.startedAt())) {
+        if (!request.endedAt().isAfter(request.startedAt())) {
             throw new InvalidWorkoutTimeException(
                     "endedAt must be after startedAt"
             );
@@ -44,17 +44,7 @@ public class WorkoutMetricService {
         WorkoutMetric savedWorkoutMetric = workoutMetricRepository.save(workoutMetric);
 
 
-        return new WorkoutMetricResponse(
-                savedWorkoutMetric.getId(),
-                savedWorkoutMetric.getWorkoutType(),
-                savedWorkoutMetric.getIntensity(),
-                savedWorkoutMetric.getCaloriesBurned(),
-                savedWorkoutMetric.getStartedAt(),
-                savedWorkoutMetric.getEndedAt(),
-                workoutMetric.getCreatedAt(),
-                workoutMetric.getUpdatedAt()
-
-        );
+        return toResponse(savedWorkoutMetric);
 
 
 
@@ -63,16 +53,7 @@ public class WorkoutMetricService {
     public List<WorkoutMetricResponse> getAllWorkoutMetrics() {
         return workoutMetricRepository.findAll()
                 .stream()
-                .map(workoutMetric -> new WorkoutMetricResponse(
-                        workoutMetric.getId(),
-                        workoutMetric.getWorkoutType(),
-                        workoutMetric.getIntensity(),
-                        workoutMetric.getCaloriesBurned(),
-                        workoutMetric.getStartedAt(),
-                        workoutMetric.getEndedAt(),
-                        workoutMetric.getCreatedAt(),
-                        workoutMetric.getUpdatedAt()
-                ))
+                .map(this::toResponse)
                 .toList();
     }
 
@@ -89,16 +70,7 @@ public class WorkoutMetricService {
         );
 
         return workoutMetricRepository.findAll(pageable)
-                .map(workoutMetric -> new WorkoutMetricResponse(
-                        workoutMetric.getId(),
-                        workoutMetric.getWorkoutType(),
-                        workoutMetric.getIntensity(),
-                        workoutMetric.getCaloriesBurned(),
-                        workoutMetric.getStartedAt(),
-                        workoutMetric.getEndedAt(),
-                        workoutMetric.getCreatedAt(),
-                        workoutMetric.getUpdatedAt()
-                ));
+                .map(this::toResponse);
     }
 
     public Page<WorkoutMetricResponse> getWorkoutMetricsByDateRange(
@@ -109,6 +81,12 @@ public class WorkoutMetricService {
             String sortBy
     ) {
 
+        if (!start.isBefore(end)) {
+            throw new InvalidWorkoutTimeException(
+                    "start must be before end"
+            );
+        }
+
         Pageable pageable = PageRequest.of(
                 page,
                 size,
@@ -117,16 +95,20 @@ public class WorkoutMetricService {
 
         return workoutMetricRepository
                 .findByStartedAtBetween(start, end, pageable)
-                .map(workoutMetric -> new WorkoutMetricResponse(
-                        workoutMetric.getId(),
-                        workoutMetric.getWorkoutType(),
-                        workoutMetric.getIntensity(),
-                        workoutMetric.getCaloriesBurned(),
-                        workoutMetric.getStartedAt(),
-                        workoutMetric.getEndedAt(),
-                        workoutMetric.getCreatedAt(),
-                        workoutMetric.getUpdatedAt()
-                ));
+                .map(this::toResponse);
+    }
+
+    private WorkoutMetricResponse toResponse(WorkoutMetric workoutMetric) {
+        return new WorkoutMetricResponse(
+                workoutMetric.getId(),
+                workoutMetric.getWorkoutType(),
+                workoutMetric.getIntensity(),
+                workoutMetric.getCaloriesBurned(),
+                workoutMetric.getStartedAt(),
+                workoutMetric.getEndedAt(),
+                workoutMetric.getCreatedAt(),
+                workoutMetric.getUpdatedAt()
+        );
     }
 
 }

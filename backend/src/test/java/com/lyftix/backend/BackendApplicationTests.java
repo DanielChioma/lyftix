@@ -1,4 +1,4 @@
-package com.lifytix.backend;
+package com.lyftix.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
