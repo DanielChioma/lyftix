@@ -4,5 +4,11 @@
 *.log
 docs/
 infrastructure/.env
+workers/.env
+workers/.venv/
+workers/.pytest_cache/
+workers/.ruff_cache/
+workers/**/__pycache__/
+workers/**/*.egg-info/
 
 build-log.md
