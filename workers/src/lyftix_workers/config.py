@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic import AnyHttpUrl, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -24,4 +26,18 @@ class WorkerSettings(BaseSettings):
         ge=1,
         le=100,
         validation_alias="GITHUB_EVENTS_PER_PAGE",
+    )
+    github_max_pages_per_run: int = Field(
+        default=3,
+        ge=1,
+        validation_alias="GITHUB_MAX_PAGES_PER_RUN",
+    )
+    github_ingestion_interval_seconds: int = Field(
+        default=900,
+        ge=60,
+        validation_alias="GITHUB_INGESTION_INTERVAL_SECONDS",
+    )
+    worker_state_path: Path = Field(
+        default=Path("~/.local/state/lyftix/github.json"),
+        validation_alias="WORKER_STATE_PATH",
     )

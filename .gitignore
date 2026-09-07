@@ -10,5 +10,8 @@ workers/.pytest_cache/
 workers/.ruff_cache/
 workers/**/__pycache__/
 workers/**/*.egg-info/
+workers/state/
+workers/**/*.state.json
+workers/**/*.state.json.lock
 
 build-log.md

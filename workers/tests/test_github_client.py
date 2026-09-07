@@ -50,3 +50,96 @@ def test_reports_rate_limit_exhaustion_without_exposing_token() -> None:
     assert "rate limit exhausted" in str(error.value)
     assert "12345" in str(error.value)
     assert "top-secret" not in str(error.value)
+
+
+def test_fetches_multiple_pages_in_order_until_final_short_page() -> None:
+    requested_pages: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        page = request.url.params.get("page", "1")
+        requested_pages.append(page)
+        if page == "1":
+            return httpx.Response(
+                200,
+                request=request,
+                json=[{"id": "3"}, {"id": "2"}],
+                headers={"link": '<https://api.github.test/events?page=2>; rel="next"'},
+            )
+        return httpx.Response(200, request=request, json=[{"id": "1"}])
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        result = GitHubClient(
+            http_client, "https://api.github.test", "secret", "octocat", 2, 3
+        ).fetch_since(None)
+
+    assert [item["id"] for item in result.events] == ["3", "2", "1"]
+    assert requested_pages == ["1", "2"]
+    assert result.pages_fetched == 2
+    assert result.history_exhausted
+
+
+def test_stops_on_empty_page() -> None:
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, request=request, json=[]))
+    with httpx.Client(transport=transport) as http_client:
+        result = GitHubClient(
+            http_client, "https://api.github.test", "secret", "octocat", 30, 3
+        ).fetch_since(None)
+
+    assert result.events == []
+    assert result.pages_fetched == 1
+    assert result.history_exhausted
+
+
+def test_stops_at_max_page_limit() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        page = request.url.params.get("page", "1")
+        next_page = int(page) + 1
+        return httpx.Response(
+            200,
+            request=request,
+            json=[{"id": f"{page}-a"}, {"id": f"{page}-b"}],
+            headers={"link": f'<https://api.github.test/events?page={next_page}>; rel="next"'},
+        )
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        result = GitHubClient(
+            http_client, "https://api.github.test", "secret", "octocat", 2, 2
+        ).fetch_since(None)
+
+    assert len(result.events) == 4
+    assert result.pages_fetched == 2
+    assert not result.history_exhausted
+
+
+def test_stops_when_checkpoint_is_encountered() -> None:
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(
+            200,
+            request=request,
+            json=[{"id": "new"}, {"id": "checkpoint"}, {"id": "old"}],
+        )
+    )
+    with httpx.Client(transport=transport) as http_client:
+        result = GitHubClient(
+            http_client, "https://api.github.test", "secret", "octocat", 30, 3
+        ).fetch_since("checkpoint")
+
+    assert result.events == [{"id": "new"}]
+    assert result.checkpoint_reached
+
+
+def test_fails_if_later_page_returns_an_error() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.params.get("page") == "2":
+            return httpx.Response(502, request=request)
+        return httpx.Response(
+            200,
+            request=request,
+            json=[{"id": "2"}, {"id": "1"}],
+            headers={"link": '<https://api.github.test/events?page=2>; rel="next"'},
+        )
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as http_client:
+        client = GitHubClient(http_client, "https://api.github.test", "secret", "octocat", 2, 3)
+        with pytest.raises(GitHubApiError, match="GitHub returned HTTP 502"):
+            client.fetch_since(None)

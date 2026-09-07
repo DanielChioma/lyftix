@@ -1,10 +1,12 @@
+from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 
-from lyftix_workers.github.client import GitHubClient
+from lyftix_workers.github.client import GitHubClient, GitHubFetchResult
 from lyftix_workers.github.ingestion import GitHubIngestionJob
 from lyftix_workers.lyftix_client import IngestionOutcome, LyftixApiError, LyftixClient
+from lyftix_workers.state import CheckpointStore, GitHubCheckpoint
 
 
 def github_event(event_id: str, event_type: str = "PushEvent") -> dict:
@@ -81,3 +83,53 @@ def test_mixed_batch_continues_after_duplicate_and_failure() -> None:
     assert summary.failed == 1
     assert not summary.successful
     assert lyftix_client.create_github_activity.call_count == 3
+
+
+def test_duplicate_allows_checkpoint_advancement(tmp_path: Path) -> None:
+    github_client = Mock(spec=GitHubClient)
+    lyftix_client = Mock(spec=LyftixClient)
+    store = CheckpointStore(tmp_path / "github.json")
+    store.save(GitHubCheckpoint("old", "2026-09-01T00:00:00Z"))
+    github_client.fetch_since.return_value = GitHubFetchResult(
+        [github_event("new")], 1, checkpoint_reached=True, history_exhausted=False
+    )
+    lyftix_client.create_github_activity.return_value = IngestionOutcome.DUPLICATE
+
+    summary = GitHubIngestionJob(github_client, lyftix_client, store).run()
+
+    assert summary.duplicates == 1
+    assert store.load() == GitHubCheckpoint("new", "2026-09-07T12:00:00Z")
+
+
+def test_failed_event_prevents_checkpoint_advancement(tmp_path: Path) -> None:
+    github_client = Mock(spec=GitHubClient)
+    lyftix_client = Mock(spec=LyftixClient)
+    store = CheckpointStore(tmp_path / "github.json")
+    original = GitHubCheckpoint("old", "2026-09-01T00:00:00Z")
+    store.save(original)
+    github_client.fetch_since.return_value = GitHubFetchResult(
+        [github_event("new")], 1, checkpoint_reached=True, history_exhausted=False
+    )
+    lyftix_client.create_github_activity.side_effect = LyftixApiError("failed")
+
+    summary = GitHubIngestionJob(github_client, lyftix_client, store).run()
+
+    assert summary.failed == 1
+    assert store.load() == original
+
+
+def test_page_cap_before_old_checkpoint_prevents_advancement(tmp_path: Path) -> None:
+    github_client = Mock(spec=GitHubClient)
+    lyftix_client = Mock(spec=LyftixClient)
+    store = CheckpointStore(tmp_path / "github.json")
+    original = GitHubCheckpoint("old", "2026-09-01T00:00:00Z")
+    store.save(original)
+    github_client.fetch_since.return_value = GitHubFetchResult(
+        [github_event("new")], 3, checkpoint_reached=False, history_exhausted=False
+    )
+    lyftix_client.create_github_activity.return_value = IngestionOutcome.CREATED
+
+    summary = GitHubIngestionJob(github_client, lyftix_client, store).run()
+
+    assert summary.created == 1
+    assert store.load() == original

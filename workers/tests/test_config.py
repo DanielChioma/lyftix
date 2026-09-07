@@ -27,3 +27,21 @@ def test_missing_required_configuration_fails_clearly(monkeypatch: pytest.Monkey
     assert "GITHUB_TOKEN" in message
     assert "GITHUB_USERNAME" in message
     assert "LYFTIX_API_BASE_URL" in message
+
+
+@pytest.mark.parametrize(
+    ("name", "value"),
+    [("GITHUB_MAX_PAGES_PER_RUN", "0"), ("GITHUB_INGESTION_INTERVAL_SECONDS", "59")],
+)
+def test_rejects_unsafe_scheduling_configuration(
+    monkeypatch: pytest.MonkeyPatch,
+    name: str,
+    value: str,
+) -> None:
+    monkeypatch.setenv("GITHUB_TOKEN", "secret")
+    monkeypatch.setenv("GITHUB_USERNAME", "octocat")
+    monkeypatch.setenv("LYFTIX_API_BASE_URL", "http://localhost:8080")
+    monkeypatch.setenv(name, value)
+
+    with pytest.raises(ValidationError):
+        WorkerSettings()
