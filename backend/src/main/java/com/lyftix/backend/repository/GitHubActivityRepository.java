@@ -67,6 +67,19 @@ public interface GitHubActivityRepository extends JpaRepository<GitHubActivity, 
             @Param("endExclusive") Instant endExclusive
     );
 
+    @Query(value = """
+            SELECT date_trunc(CAST(:period AS text), occurred_at AT TIME ZONE 'UTC')::date AS "periodStart",
+                   COUNT(*) AS count
+            FROM github_activity
+            WHERE occurred_at >= :startInclusive AND occurred_at < :endExclusive
+            GROUP BY "periodStart" ORDER BY "periodStart"
+            """, nativeQuery = true)
+    List<PeriodCount> countByPeriod(
+            @Param("period") String period,
+            @Param("startInclusive") Instant startInclusive,
+            @Param("endExclusive") Instant endExclusive
+    );
+
     interface NamedCount {
         String getName();
         Long getCount();
@@ -74,6 +87,11 @@ public interface GitHubActivityRepository extends JpaRepository<GitHubActivity, 
 
     interface DailyCount {
         LocalDate getDate();
+        Long getCount();
+    }
+
+    interface PeriodCount {
+        LocalDate getPeriodStart();
         Long getCount();
     }
 }

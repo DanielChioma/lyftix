@@ -56,6 +56,22 @@ public interface WorkoutMetricRepository extends JpaRepository<WorkoutMetric, Lo
             @Param("endExclusive") Instant endExclusive
     );
 
+    @Query(value = """
+            SELECT date_trunc(CAST(:period AS text), started_at AT TIME ZONE 'UTC')::date AS "periodStart",
+                   COUNT(*) AS count,
+                   COALESCE(SUM(calories_burned), 0)::bigint AS "caloriesBurned",
+                   COALESCE(SUM(EXTRACT(EPOCH FROM ended_at - started_at)), 0)::bigint AS "durationSeconds",
+                   AVG(intensity)::double precision AS "averageIntensity"
+            FROM workout_metrics
+            WHERE started_at >= :startInclusive AND started_at < :endExclusive
+            GROUP BY "periodStart" ORDER BY "periodStart"
+            """, nativeQuery = true)
+    List<WorkoutPeriodAggregate> aggregateByPeriod(
+            @Param("period") String period,
+            @Param("startInclusive") Instant startInclusive,
+            @Param("endExclusive") Instant endExclusive
+    );
+
     interface WorkoutAggregate {
         Long getTotalWorkouts();
         Long getTotalCaloriesBurned();
@@ -73,5 +89,13 @@ public interface WorkoutMetricRepository extends JpaRepository<WorkoutMetric, Lo
         Long getCount();
         Long getCaloriesBurned();
         Long getDurationSeconds();
+    }
+
+    interface WorkoutPeriodAggregate {
+        LocalDate getPeriodStart();
+        Long getCount();
+        Long getCaloriesBurned();
+        Long getDurationSeconds();
+        Double getAverageIntensity();
     }
 }

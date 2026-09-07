@@ -4,6 +4,8 @@ import com.lyftix.backend.dto.CheckInAnalyticsResponse;
 import com.lyftix.backend.dto.CodingAnalyticsResponse;
 import com.lyftix.backend.dto.DailyAnalyticsSummaryResponse;
 import com.lyftix.backend.dto.GitHubAnalyticsResponse;
+import com.lyftix.backend.dto.MonthlyAnalyticsSummaryResponse;
+import com.lyftix.backend.dto.WeeklyAnalyticsSummaryResponse;
 import com.lyftix.backend.dto.WorkoutAnalyticsResponse;
 import com.lyftix.backend.exception.InvalidAnalyticsDateRangeException;
 import com.lyftix.backend.repository.CodingSessionRepository;
@@ -14,8 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -159,6 +164,63 @@ public class AnalyticsService {
         );
     }
 
+    public WeeklyAnalyticsSummaryResponse getWeeklySummary(LocalDate startDate, LocalDate endDate) {
+        Map<LocalDate, MutablePeriodSummary> summaries = aggregatePeriods(Period.WEEK, startDate, endDate);
+        List<WeeklyAnalyticsSummaryResponse.WeeklySummary> weekly = summaries.entrySet().stream()
+                .map(entry -> entry.getValue().toWeeklyResponse(entry.getKey()))
+                .toList();
+        return new WeeklyAnalyticsSummaryResponse(startDate, endDate, weekly);
+    }
+
+    public MonthlyAnalyticsSummaryResponse getMonthlySummary(LocalDate startDate, LocalDate endDate) {
+        Map<LocalDate, MutablePeriodSummary> summaries = aggregatePeriods(Period.MONTH, startDate, endDate);
+        List<MonthlyAnalyticsSummaryResponse.MonthlySummary> monthly = summaries.entrySet().stream()
+                .map(entry -> entry.getValue().toMonthlyResponse(entry.getKey()))
+                .toList();
+        return new MonthlyAnalyticsSummaryResponse(startDate, endDate, monthly);
+    }
+
+    private Map<LocalDate, MutablePeriodSummary> aggregatePeriods(
+            Period period, LocalDate startDate, LocalDate endDate
+    ) {
+        InstantRange range = toInstantRange(startDate, endDate);
+        Map<LocalDate, MutablePeriodSummary> summaries = new TreeMap<>();
+        for (LocalDate bucket = period.bucketStart(startDate); !bucket.isAfter(endDate); bucket = period.next(bucket)) {
+            summaries.put(bucket, new MutablePeriodSummary());
+        }
+
+        workoutMetricRepository.aggregateByPeriod(
+                period.queryValue, range.startInclusive(), range.endExclusive()
+        ).forEach(item -> {
+            MutablePeriodSummary summary = summaries.get(item.getPeriodStart());
+            summary.workoutCount = item.getCount();
+            summary.workoutDurationSeconds = item.getDurationSeconds();
+            summary.caloriesBurned = item.getCaloriesBurned();
+            summary.averageWorkoutIntensity = item.getAverageIntensity();
+        });
+        gitHubActivityRepository.countByPeriod(
+                period.queryValue, range.startInclusive(), range.endExclusive()
+        ).forEach(item -> summaries.get(item.getPeriodStart()).githubActivityCount = item.getCount());
+        codingSessionRepository.aggregateByPeriod(
+                period.queryValue, range.startInclusive(), range.endExclusive()
+        ).forEach(item -> {
+            MutablePeriodSummary summary = summaries.get(item.getPeriodStart());
+            summary.codingSessionCount = item.getCount();
+            summary.codingDurationSeconds = item.getDurationSeconds();
+            summary.averageCodingSessionDurationSeconds = item.getAverageDurationSeconds();
+        });
+        dailyCheckInRepository.aggregateByPeriod(period.queryValue, startDate, endDate).forEach(item -> {
+            MutablePeriodSummary summary = summaries.get(item.getPeriodStart());
+            summary.averageMood = item.getAverageMood();
+            summary.averageEnergy = item.getAverageEnergy();
+            summary.averageFocus = item.getAverageFocus();
+            summary.averageStress = item.getAverageStress();
+            summary.averageProductivity = item.getAverageProductivity();
+            summary.averageSleepMinutes = item.getAverageSleepMinutes();
+        });
+        return summaries;
+    }
+
     InstantRange toInstantRange(LocalDate startDate, LocalDate endDate) {
         validateRange(startDate, endDate);
         return new InstantRange(
@@ -203,6 +265,64 @@ public class AnalyticsService {
             return new DailyAnalyticsSummaryResponse.DailySummary(
                     date, workoutCount, workoutDurationSeconds, caloriesBurned, githubActivityCount,
                     codingSessionCount, codingDurationSeconds, mood, energy, focus, stress, productivity, sleepMinutes
+            );
+        }
+    }
+
+    private enum Period {
+        WEEK("week") {
+            @Override LocalDate bucketStart(LocalDate date) {
+                return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            }
+            @Override LocalDate next(LocalDate bucketStart) { return bucketStart.plusWeeks(1); }
+        },
+        MONTH("month") {
+            @Override LocalDate bucketStart(LocalDate date) { return date.withDayOfMonth(1); }
+            @Override LocalDate next(LocalDate bucketStart) { return bucketStart.plusMonths(1); }
+        };
+
+        private final String queryValue;
+
+        Period(String queryValue) {
+            this.queryValue = queryValue;
+        }
+
+        abstract LocalDate bucketStart(LocalDate date);
+        abstract LocalDate next(LocalDate bucketStart);
+    }
+
+    private static class MutablePeriodSummary {
+        private long workoutCount;
+        private long workoutDurationSeconds;
+        private long caloriesBurned;
+        private Double averageWorkoutIntensity;
+        private long githubActivityCount;
+        private long codingSessionCount;
+        private long codingDurationSeconds;
+        private Double averageCodingSessionDurationSeconds;
+        private Double averageMood;
+        private Double averageEnergy;
+        private Double averageFocus;
+        private Double averageStress;
+        private Double averageProductivity;
+        private Double averageSleepMinutes;
+
+        private WeeklyAnalyticsSummaryResponse.WeeklySummary toWeeklyResponse(LocalDate periodStart) {
+            return new WeeklyAnalyticsSummaryResponse.WeeklySummary(
+                    periodStart, periodStart.plusDays(6), workoutCount, workoutDurationSeconds, caloriesBurned,
+                    averageWorkoutIntensity, githubActivityCount, codingSessionCount, codingDurationSeconds,
+                    averageCodingSessionDurationSeconds, averageMood, averageEnergy, averageFocus, averageStress,
+                    averageProductivity, averageSleepMinutes
+            );
+        }
+
+        private MonthlyAnalyticsSummaryResponse.MonthlySummary toMonthlyResponse(LocalDate periodStart) {
+            return new MonthlyAnalyticsSummaryResponse.MonthlySummary(
+                    periodStart.getYear(), periodStart.getMonthValue(), periodStart,
+                    periodStart.with(TemporalAdjusters.lastDayOfMonth()), workoutCount, workoutDurationSeconds,
+                    caloriesBurned, averageWorkoutIntensity, githubActivityCount, codingSessionCount,
+                    codingDurationSeconds, averageCodingSessionDurationSeconds, averageMood, averageEnergy,
+                    averageFocus, averageStress, averageProductivity, averageSleepMinutes
             );
         }
     }

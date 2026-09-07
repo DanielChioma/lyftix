@@ -76,6 +76,21 @@ public interface CodingSessionRepository extends JpaRepository<CodingSession, Lo
             @Param("endExclusive") Instant endExclusive
     );
 
+    @Query(value = """
+            SELECT date_trunc(CAST(:period AS text), started_at AT TIME ZONE 'UTC')::date AS "periodStart",
+                   COUNT(*) AS count,
+                   COALESCE(SUM(EXTRACT(EPOCH FROM ended_at - started_at)), 0)::bigint AS "durationSeconds",
+                   AVG(EXTRACT(EPOCH FROM ended_at - started_at))::double precision AS "averageDurationSeconds"
+            FROM coding_sessions
+            WHERE started_at >= :startInclusive AND started_at < :endExclusive
+            GROUP BY "periodStart" ORDER BY "periodStart"
+            """, nativeQuery = true)
+    List<CodingPeriodAggregate> aggregateByPeriod(
+            @Param("period") String period,
+            @Param("startInclusive") Instant startInclusive,
+            @Param("endExclusive") Instant endExclusive
+    );
+
     interface CodingAggregate {
         Long getTotalSessions();
         Long getTotalDurationSeconds();
@@ -91,5 +106,12 @@ public interface CodingSessionRepository extends JpaRepository<CodingSession, Lo
         LocalDate getDate();
         Long getCount();
         Long getDurationSeconds();
+    }
+
+    interface CodingPeriodAggregate {
+        LocalDate getPeriodStart();
+        Long getCount();
+        Long getDurationSeconds();
+        Double getAverageDurationSeconds();
     }
 }

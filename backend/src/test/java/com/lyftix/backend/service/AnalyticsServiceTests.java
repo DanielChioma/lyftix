@@ -2,6 +2,8 @@ package com.lyftix.backend.service;
 
 import com.lyftix.backend.dto.CodingAnalyticsResponse;
 import com.lyftix.backend.dto.DailyAnalyticsSummaryResponse;
+import com.lyftix.backend.dto.MonthlyAnalyticsSummaryResponse;
+import com.lyftix.backend.dto.WeeklyAnalyticsSummaryResponse;
 import com.lyftix.backend.dto.WorkoutAnalyticsResponse;
 import com.lyftix.backend.exception.InvalidAnalyticsDateRangeException;
 import com.lyftix.backend.repository.CodingSessionRepository;
@@ -21,6 +23,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -171,5 +174,96 @@ class AnalyticsServiceTests {
         assertThat(second.workoutCount()).isZero();
         assertThat(second.githubActivityCount()).isEqualTo(3);
         assertThat(second.mood()).isEqualTo(8);
+    }
+
+    @Test
+    void buildsMondayBasedIsoWeeksIncludingPartialFirstAndLastWeeks() {
+        stubEmptyPeriodRepositories();
+
+        WeeklyAnalyticsSummaryResponse response = service.getWeeklySummary(
+                LocalDate.parse("2026-09-02"), LocalDate.parse("2026-09-15")
+        );
+
+        assertThat(response.weekly()).hasSize(3);
+        assertThat(response.weekly().getFirst().periodStart()).isEqualTo(LocalDate.parse("2026-08-31"));
+        assertThat(response.weekly().getFirst().periodEnd()).isEqualTo(LocalDate.parse("2026-09-06"));
+        assertThat(response.weekly().getLast().periodStart()).isEqualTo(LocalDate.parse("2026-09-14"));
+        assertThat(response.weekly().getLast().periodEnd()).isEqualTo(LocalDate.parse("2026-09-20"));
+    }
+
+    @Test
+    void buildsPartialMonthsAcrossYearBoundaryInChronologicalOrder() {
+        stubEmptyPeriodRepositories();
+
+        MonthlyAnalyticsSummaryResponse response = service.getMonthlySummary(
+                LocalDate.parse("2026-12-20"), LocalDate.parse("2027-02-03")
+        );
+
+        assertThat(response.monthly()).hasSize(3);
+        assertThat(response.monthly().getFirst().periodStart()).isEqualTo(LocalDate.parse("2026-12-01"));
+        assertThat(response.monthly().getFirst().periodEnd()).isEqualTo(LocalDate.parse("2026-12-31"));
+        assertThat(response.monthly().getLast().year()).isEqualTo(2027);
+        assertThat(response.monthly().getLast().month()).isEqualTo(2);
+        assertThat(response.monthly().getLast().periodEnd()).isEqualTo(LocalDate.parse("2027-02-28"));
+    }
+
+    @Test
+    void returnsEmptyPeriodsWithZeroEventsAndNullAverages() {
+        stubEmptyPeriodRepositories();
+
+        WeeklyAnalyticsSummaryResponse.WeeklySummary summary = service
+                .getWeeklySummary(START, START).weekly().getFirst();
+
+        assertThat(summary.workoutCount()).isZero();
+        assertThat(summary.workoutDurationSeconds()).isZero();
+        assertThat(summary.githubActivityCount()).isZero();
+        assertThat(summary.codingSessionCount()).isZero();
+        assertThat(summary.averageWorkoutIntensity()).isNull();
+        assertThat(summary.averageMood()).isNull();
+    }
+
+    @Test
+    void mapsCrossDomainPeriodAggregates() {
+        WorkoutMetricRepository.WorkoutPeriodAggregate workout = mock(WorkoutMetricRepository.WorkoutPeriodAggregate.class);
+        GitHubActivityRepository.PeriodCount github = mock(GitHubActivityRepository.PeriodCount.class);
+        CodingSessionRepository.CodingPeriodAggregate coding = mock(CodingSessionRepository.CodingPeriodAggregate.class);
+        DailyCheckInRepository.CheckInPeriodAverages checkIn = mock(DailyCheckInRepository.CheckInPeriodAverages.class);
+        when(workout.getPeriodStart()).thenReturn(START);
+        when(workout.getCount()).thenReturn(2L);
+        when(workout.getDurationSeconds()).thenReturn(5400L);
+        when(workout.getCaloriesBurned()).thenReturn(700L);
+        when(workout.getAverageIntensity()).thenReturn(7.5);
+        when(github.getPeriodStart()).thenReturn(START);
+        when(github.getCount()).thenReturn(4L);
+        when(coding.getPeriodStart()).thenReturn(START);
+        when(coding.getCount()).thenReturn(3L);
+        when(coding.getDurationSeconds()).thenReturn(7200L);
+        when(coding.getAverageDurationSeconds()).thenReturn(2400.0);
+        when(checkIn.getPeriodStart()).thenReturn(START);
+        when(checkIn.getAverageMood()).thenReturn(8.0);
+        when(checkIn.getAverageSleepMinutes()).thenReturn(480.0);
+        when(workoutRepository.aggregateByPeriod(anyString(), any(), any())).thenReturn(List.of(workout));
+        when(githubRepository.countByPeriod(anyString(), any(), any())).thenReturn(List.of(github));
+        when(codingRepository.aggregateByPeriod(anyString(), any(), any())).thenReturn(List.of(coding));
+        when(checkInRepository.aggregateByPeriod(anyString(), any(), any())).thenReturn(List.of(checkIn));
+
+        MonthlyAnalyticsSummaryResponse.MonthlySummary summary = service
+                .getMonthlySummary(START, END).monthly().getFirst();
+
+        assertThat(summary.workoutCount()).isEqualTo(2);
+        assertThat(summary.workoutDurationSeconds()).isEqualTo(5400);
+        assertThat(summary.averageWorkoutIntensity()).isEqualTo(7.5);
+        assertThat(summary.githubActivityCount()).isEqualTo(4);
+        assertThat(summary.codingDurationSeconds()).isEqualTo(7200);
+        assertThat(summary.averageCodingSessionDurationSeconds()).isEqualTo(2400.0);
+        assertThat(summary.averageMood()).isEqualTo(8.0);
+        assertThat(summary.averageSleepMinutes()).isEqualTo(480.0);
+    }
+
+    private void stubEmptyPeriodRepositories() {
+        when(workoutRepository.aggregateByPeriod(anyString(), any(), any())).thenReturn(List.of());
+        when(githubRepository.countByPeriod(anyString(), any(), any())).thenReturn(List.of());
+        when(codingRepository.aggregateByPeriod(anyString(), any(), any())).thenReturn(List.of());
+        when(checkInRepository.aggregateByPeriod(anyString(), any(), any())).thenReturn(List.of());
     }
 }

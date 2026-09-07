@@ -174,6 +174,92 @@ class AnalyticsApiIntegrationTests extends PostgreSqlIntegrationTest {
                 .andExpect(jsonPath("$.components.schemas.DailyAnalyticsSummaryResponse").exists());
     }
 
+    @Test
+    void aggregatesIsoWeeksWithoutLeakingOutsidePartialRange() throws Exception {
+        saveWorkout("Outside", 10, 900, "2026-09-01T10:00:00Z", "2026-09-01T11:00:00Z");
+        saveWorkout("Running", 6, 300, "2026-09-02T10:00:00Z", "2026-09-02T10:30:00Z");
+        saveWorkout("Cycling", 8, 500, "2026-09-03T10:00:00Z", "2026-09-03T11:00:00Z");
+        saveGitHub("PushEvent", "lyftix", "octocat", "2026-09-03T12:00:00Z", "weekly-event");
+        saveCoding("lyftix", "Java", "2026-09-04T09:00:00Z", "2026-09-04T10:00:00Z");
+        saveCheckIn("2026-09-02", 6, 7, 8, 3, 420, 7);
+        saveCheckIn("2026-09-04", 8, 9, 10, 5, 540, 9);
+
+        mockMvc.perform(analyticsGet("/weekly", "2026-09-02", "2026-09-15"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.weekly.length()").value(3))
+                .andExpect(jsonPath("$.weekly[0].periodStart").value("2026-08-31"))
+                .andExpect(jsonPath("$.weekly[0].periodEnd").value("2026-09-06"))
+                .andExpect(jsonPath("$.weekly[0].workoutCount").value(2))
+                .andExpect(jsonPath("$.weekly[0].workoutDurationSeconds").value(5400))
+                .andExpect(jsonPath("$.weekly[0].caloriesBurned").value(800))
+                .andExpect(jsonPath("$.weekly[0].averageWorkoutIntensity").value(7.0))
+                .andExpect(jsonPath("$.weekly[0].githubActivityCount").value(1))
+                .andExpect(jsonPath("$.weekly[0].codingSessionCount").value(1))
+                .andExpect(jsonPath("$.weekly[0].codingDurationSeconds").value(3600))
+                .andExpect(jsonPath("$.weekly[0].averageMood").value(7.0))
+                .andExpect(jsonPath("$.weekly[1].workoutCount").value(0))
+                .andExpect(jsonPath("$.weekly[1].averageMood").doesNotExist())
+                .andExpect(jsonPath("$.weekly[2].periodStart").value("2026-09-14"));
+    }
+
+    @Test
+    void aggregatesCalendarMonthsAcrossYearBoundaryAndKeepsEmptyMonth() throws Exception {
+        saveGitHub("PushEvent", "lyftix", "octocat", "2026-12-19T12:00:00Z", "outside-before");
+        saveGitHub("PushEvent", "lyftix", "octocat", "2026-12-20T12:00:00Z", "december");
+        saveGitHub("PushEvent", "lyftix", "octocat", "2027-02-03T12:00:00Z", "february");
+        saveGitHub("PushEvent", "lyftix", "octocat", "2027-02-04T00:00:00Z", "outside-after");
+
+        mockMvc.perform(analyticsGet("/monthly", "2026-12-20", "2027-02-03"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.monthly.length()").value(3))
+                .andExpect(jsonPath("$.monthly[0].year").value(2026))
+                .andExpect(jsonPath("$.monthly[0].month").value(12))
+                .andExpect(jsonPath("$.monthly[0].periodStart").value("2026-12-01"))
+                .andExpect(jsonPath("$.monthly[0].periodEnd").value("2026-12-31"))
+                .andExpect(jsonPath("$.monthly[0].githubActivityCount").value(1))
+                .andExpect(jsonPath("$.monthly[1].periodStart").value("2027-01-01"))
+                .andExpect(jsonPath("$.monthly[1].githubActivityCount").value(0))
+                .andExpect(jsonPath("$.monthly[1].averageMood").doesNotExist())
+                .andExpect(jsonPath("$.monthly[2].month").value(2))
+                .andExpect(jsonPath("$.monthly[2].githubActivityCount").value(1));
+    }
+
+    @Test
+    void supportsSameDayPeriodSummary() throws Exception {
+        saveCoding("lyftix", "Java", "2026-09-02T09:00:00Z", "2026-09-02T10:30:00Z");
+
+        mockMvc.perform(analyticsGet("/weekly", "2026-09-02", "2026-09-02"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.weekly.length()").value(1))
+                .andExpect(jsonPath("$.weekly[0].periodStart").value("2026-08-31"))
+                .andExpect(jsonPath("$.weekly[0].codingSessionCount").value(1))
+                .andExpect(jsonPath("$.weekly[0].codingDurationSeconds").value(5400))
+                .andExpect(jsonPath("$.weekly[0].averageCodingSessionDurationSeconds").value(5400.0));
+    }
+
+    @Test
+    void rejectsInvalidPeriodRangesWithExistingApiError() throws Exception {
+        mockMvc.perform(analyticsGet("/monthly", "2026-09-03", "2026-09-02"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Invalid Analytics Date Range"))
+                .andExpect(jsonPath("$.details[0]").value("startDate must be on or before endDate"));
+
+        mockMvc.perform(get("/api/analytics/weekly").param("startDate", "2026-09-02"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Invalid Analytics Date Range"));
+    }
+
+    @Test
+    void publishesWeeklyAndMonthlyOpenApiSchemas() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/api/analytics/weekly'].get").exists())
+                .andExpect(jsonPath("$.paths['/api/analytics/monthly'].get").exists())
+                .andExpect(jsonPath("$.components.schemas.WeeklyAnalyticsSummaryResponse").exists())
+                .andExpect(jsonPath("$.components.schemas.MonthlyAnalyticsSummaryResponse").exists());
+    }
+
     private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder analyticsGet(
             String path, String startDate, String endDate
     ) {

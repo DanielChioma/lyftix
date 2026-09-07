@@ -40,6 +40,24 @@ public interface DailyCheckInRepository extends JpaRepository<DailyCheckIn, Long
             @Param("endDate") LocalDate endDate
     );
 
+    @Query(value = """
+            SELECT date_trunc(CAST(:period AS text), check_in_date::timestamp)::date AS "periodStart",
+                   AVG(mood)::double precision AS "averageMood",
+                   AVG(energy)::double precision AS "averageEnergy",
+                   AVG(focus)::double precision AS "averageFocus",
+                   AVG(stress)::double precision AS "averageStress",
+                   AVG(productivity)::double precision AS "averageProductivity",
+                   AVG(sleep_minutes)::double precision AS "averageSleepMinutes"
+            FROM daily_check_ins
+            WHERE check_in_date BETWEEN :startDate AND :endDate
+            GROUP BY "periodStart" ORDER BY "periodStart"
+            """, nativeQuery = true)
+    List<CheckInPeriodAverages> aggregateByPeriod(
+            @Param("period") String period,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
     interface CheckInAverages {
         Double getAverageMood();
         Double getAverageEnergy();
@@ -57,5 +75,15 @@ public interface DailyCheckInRepository extends JpaRepository<DailyCheckIn, Long
         Integer getStress();
         Integer getProductivity();
         Integer getSleepMinutes();
+    }
+
+    interface CheckInPeriodAverages {
+        LocalDate getPeriodStart();
+        Double getAverageMood();
+        Double getAverageEnergy();
+        Double getAverageFocus();
+        Double getAverageStress();
+        Double getAverageProductivity();
+        Double getAverageSleepMinutes();
     }
 }

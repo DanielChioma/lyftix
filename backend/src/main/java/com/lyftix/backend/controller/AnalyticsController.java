@@ -4,6 +4,8 @@ import com.lyftix.backend.dto.CheckInAnalyticsResponse;
 import com.lyftix.backend.dto.CodingAnalyticsResponse;
 import com.lyftix.backend.dto.DailyAnalyticsSummaryResponse;
 import com.lyftix.backend.dto.GitHubAnalyticsResponse;
+import com.lyftix.backend.dto.MonthlyAnalyticsSummaryResponse;
+import com.lyftix.backend.dto.WeeklyAnalyticsSummaryResponse;
 import com.lyftix.backend.dto.WorkoutAnalyticsResponse;
 import com.lyftix.backend.exception.ApiErrorResponse;
 import com.lyftix.backend.service.AnalyticsService;
@@ -115,5 +117,39 @@ public class AnalyticsController {
             @RequestParam(required = false) LocalDate endDate
     ) {
         return analyticsService.getDailySummary(startDate, endDate);
+    }
+
+    @Operation(summary = "Get weekly cross-domain summaries",
+            description = "Returns chronological ISO-week buckets from Monday through Sunday. Partial first and last weeks retain their calendar boundaries, but aggregates include only data inside the requested inclusive range. Empty intersecting weeks are returned with zero event metrics and null averages.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Weekly summaries returned", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "Missing or reversed date range",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @GetMapping("/weekly")
+    public WeeklyAnalyticsSummaryResponse getWeeklySummary(
+            @Parameter(description = "Inclusive user-range start date; may fall mid-week", example = "2026-09-02")
+            @RequestParam(required = false) LocalDate startDate,
+            @Parameter(description = "Inclusive user-range end date; may fall mid-week", example = "2026-09-15")
+            @RequestParam(required = false) LocalDate endDate
+    ) {
+        return analyticsService.getWeeklySummary(startDate, endDate);
+    }
+
+    @Operation(summary = "Get monthly cross-domain summaries",
+            description = "Returns chronological calendar-month buckets. Partial first and last months retain their calendar boundaries, but aggregates include only data inside the requested inclusive range. Empty intersecting months are returned with zero event metrics and null averages.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Monthly summaries returned", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "Missing or reversed date range",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @GetMapping("/monthly")
+    public MonthlyAnalyticsSummaryResponse getMonthlySummary(
+            @Parameter(description = "Inclusive user-range start date; may fall mid-month", example = "2026-08-20")
+            @RequestParam(required = false) LocalDate startDate,
+            @Parameter(description = "Inclusive user-range end date; may fall mid-month", example = "2026-10-10")
+            @RequestParam(required = false) LocalDate endDate
+    ) {
+        return analyticsService.getMonthlySummary(startDate, endDate);
     }
 }
