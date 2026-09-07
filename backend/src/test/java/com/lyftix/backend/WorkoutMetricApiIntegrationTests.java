@@ -1,0 +1,156 @@
+package com.lyftix.backend;
+
+import com.lyftix.backend.model.WorkoutMetric;
+import com.lyftix.backend.repository.WorkoutMetricRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.Instant;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private WorkoutMetricRepository workoutMetricRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void cleanDatabase() {
+        workoutMetricRepository.deleteAll();
+    }
+
+    @Test
+    void applicationContextLoads() {
+        assertThat(mockMvc).isNotNull();
+    }
+
+    @Test
+    void createsAndPersistsValidWorkoutWithAuditTimestamps() throws Exception {
+        mockMvc.perform(post("/api/workouts")
+                        .contentType(APPLICATION_JSON)
+                        .content(workoutJson("Running", 7, 450,
+                                "2026-09-01T08:00:00Z", "2026-09-01T09:00:00Z")))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.workoutType").value("Running"))
+                .andExpect(jsonPath("$.createdAt").isNotEmpty())
+                .andExpect(jsonPath("$.updatedAt").isNotEmpty());
+
+        List<WorkoutMetric> workouts = workoutMetricRepository.findAll();
+        assertThat(workouts).hasSize(1);
+        assertThat(workouts.getFirst().getWorkoutType()).isEqualTo("Running");
+        assertThat(workouts.getFirst().getCreatedAt()).isNotNull();
+        assertThat(workouts.getFirst().getUpdatedAt()).isNotNull();
+    }
+
+    @Test
+    void returnsBadRequestForBeanValidationFailure() throws Exception {
+        mockMvc.perform(post("/api/workouts")
+                        .contentType(APPLICATION_JSON)
+                        .content(workoutJson("", 11, -1,
+                                "2026-09-01T08:00:00Z", "2026-09-01T09:00:00Z")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Validation Failed"))
+                .andExpect(jsonPath("$.details").isArray());
+    }
+
+    @Test
+    void returnsStandardizedErrorForInvalidWorkoutTime() throws Exception {
+        mockMvc.perform(post("/api/workouts")
+                        .contentType(APPLICATION_JSON)
+                        .content(workoutJson("Cycling", 5, 300,
+                                "2026-09-01T09:00:00Z", "2026-09-01T08:00:00Z")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").isNotEmpty())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Invalid Workout Time"))
+                .andExpect(jsonPath("$.details[0]").value("endedAt must be after startedAt"));
+    }
+
+    @Test
+    void returnsPagedWorkouts() throws Exception {
+        createWorkout("Running", "2026-09-01T08:00:00Z", "2026-09-01T09:00:00Z");
+        createWorkout("Cycling", "2026-09-02T08:00:00Z", "2026-09-02T09:00:00Z");
+        createWorkout("Swimming", "2026-09-03T08:00:00Z", "2026-09-03T09:00:00Z");
+
+        mockMvc.perform(get("/api/workouts/paged")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sortBy", "startedAt"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].workoutType").value("Swimming"))
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.totalPages").value(2));
+    }
+
+    @Test
+    void filtersWorkoutsByStartedAtRange() throws Exception {
+        createWorkout("Before", "2026-08-31T08:00:00Z", "2026-08-31T09:00:00Z");
+        createWorkout("Inside", "2026-09-02T08:00:00Z", "2026-09-02T09:00:00Z");
+        createWorkout("After", "2026-09-05T08:00:00Z", "2026-09-05T09:00:00Z");
+
+        mockMvc.perform(get("/api/workouts/filter")
+                        .param("start", "2026-09-01T00:00:00Z")
+                        .param("end", "2026-09-04T00:00:00Z"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].workoutType").value("Inside"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void appliesFlywayMigrationsToContainerDatabase() {
+        Integer successfulMigrations = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM flyway_schema_history WHERE success",
+                Integer.class
+        );
+        List<String> versions = jdbcTemplate.queryForList(
+                "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank",
+                String.class
+        );
+
+        assertThat(successfulMigrations).isEqualTo(2);
+        assertThat(versions).containsExactly("1", "2");
+    }
+
+    private void createWorkout(String workoutType, String startedAt, String endedAt) throws Exception {
+        mockMvc.perform(post("/api/workouts")
+                        .contentType(APPLICATION_JSON)
+                        .content(workoutJson(workoutType, 5, 300, startedAt, endedAt)))
+                .andExpect(status().isCreated());
+    }
+
+    private String workoutJson(
+            String workoutType,
+            int intensity,
+            int caloriesBurned,
+            String startedAt,
+            String endedAt
+    ) {
+        return """
+                {
+                  "workoutType": "%s",
+                  "intensity": %d,
+                  "caloriesBurned": %d,
+                  "startedAt": "%s",
+                  "endedAt": "%s"
+                }
+                """.formatted(workoutType, intensity, caloriesBurned, startedAt, endedAt);
+    }
+}
