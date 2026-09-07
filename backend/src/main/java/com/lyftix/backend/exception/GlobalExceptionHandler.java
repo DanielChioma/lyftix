@@ -119,4 +119,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
+
+    @ExceptionHandler(InvalidAnalyticsDateRangeException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidAnalyticsDateRangeException(
+            InvalidAnalyticsDateRangeException exception
+    ) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid Analytics Date Range",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
 }
