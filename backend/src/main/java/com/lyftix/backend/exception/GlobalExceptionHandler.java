@@ -49,4 +49,32 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errorResponse);
     }
+
+    @ExceptionHandler(InvalidGitHubActivityFilterException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidGitHubActivityFilterException(
+            InvalidGitHubActivityFilterException exception
+    ) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid GitHub Activity Filter",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(DuplicateGitHubActivityException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateGitHubActivityException(
+            DuplicateGitHubActivityException exception
+    ) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                "Duplicate GitHub Activity",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
 }
