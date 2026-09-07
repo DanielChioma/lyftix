@@ -91,4 +91,32 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errorResponse);
     }
+
+    @ExceptionHandler(InvalidDailyCheckInFilterException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidDailyCheckInFilterException(
+            InvalidDailyCheckInFilterException exception
+    ) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid Daily Check-in Filter",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(DuplicateDailyCheckInException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateDailyCheckInException(
+            DuplicateDailyCheckInException exception
+    ) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                "Duplicate Daily Check-in",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
 }

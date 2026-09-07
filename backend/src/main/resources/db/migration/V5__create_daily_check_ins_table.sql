@@ -1,0 +1,21 @@
+CREATE TABLE daily_check_ins (
+    id BIGSERIAL PRIMARY KEY,
+    check_in_date DATE NOT NULL,
+    mood INTEGER NOT NULL,
+    energy INTEGER NOT NULL,
+    focus INTEGER NOT NULL,
+    stress INTEGER NOT NULL,
+    sleep_minutes INTEGER NOT NULL,
+    productivity INTEGER NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    CONSTRAINT uk_daily_check_ins_check_in_date UNIQUE (check_in_date),
+    CONSTRAINT ck_daily_check_ins_mood_range CHECK (mood BETWEEN 1 AND 10),
+    CONSTRAINT ck_daily_check_ins_energy_range CHECK (energy BETWEEN 1 AND 10),
+    CONSTRAINT ck_daily_check_ins_focus_range CHECK (focus BETWEEN 1 AND 10),
+    CONSTRAINT ck_daily_check_ins_stress_range CHECK (stress BETWEEN 1 AND 10),
+    CONSTRAINT ck_daily_check_ins_sleep_minutes_range CHECK (sleep_minutes BETWEEN 0 AND 1440),
+    CONSTRAINT ck_daily_check_ins_productivity_range CHECK (productivity BETWEEN 1 AND 10),
+    CONSTRAINT ck_daily_check_ins_notes_length CHECK (notes IS NULL OR CHAR_LENGTH(notes) <= 5000)
+);
