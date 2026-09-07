@@ -177,7 +177,7 @@ class GitHubActivityApiIntegrationTests extends PostgreSqlIntegrationTest {
                 Integer.class
         );
 
-        assertThat(versions).containsExactly("1", "2", "3");
+        assertThat(versions).containsExactly("1", "2", "3", "4");
         assertThat(tableCount).isEqualTo(1);
     }
 

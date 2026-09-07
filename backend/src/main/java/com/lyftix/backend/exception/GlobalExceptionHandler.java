@@ -77,4 +77,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
+
+    @ExceptionHandler(InvalidCodingSessionException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidCodingSessionException(
+            InvalidCodingSessionException exception
+    ) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid Coding Session",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
 }
