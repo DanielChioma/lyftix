@@ -129,6 +129,35 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
         assertThat(versions).containsExactly("1", "2");
     }
 
+    @Test
+    void exposesOpenApiDocumentationAndSwaggerUi() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.openapi").isNotEmpty())
+                .andExpect(jsonPath("$.info.title").value("Lyftix API"))
+                .andExpect(jsonPath("$.info.description").value("Personal analytics platform API"))
+                .andExpect(jsonPath("$.info.version").value("1.0.0"))
+                .andExpect(jsonPath("$.paths['/api/workouts'].post").exists())
+                .andExpect(jsonPath("$.paths['/api/workouts'].get").exists())
+                .andExpect(jsonPath("$.paths['/api/workouts/paged'].get").exists())
+                .andExpect(jsonPath("$.paths['/api/workouts/filter'].get").exists())
+                .andExpect(jsonPath("$.paths['/api/workouts'].post.requestBody.required").value(true))
+                .andExpect(jsonPath("$.paths['/api/workouts'].post.requestBody.content['application/json'].schema.$ref")
+                        .value("#/components/schemas/CreateWorkoutMetricRequest"))
+                .andExpect(jsonPath("$.paths['/api/workouts'].post.responses['201'].content['*/*'].schema.$ref")
+                        .value("#/components/schemas/WorkoutMetricResponse"))
+                .andExpect(jsonPath("$.paths['/api/workouts'].post.responses['400'].content['*/*'].schema.$ref")
+                        .value("#/components/schemas/ApiErrorResponse"))
+                .andExpect(jsonPath("$.paths['/api/workouts/paged'].get.parameters.length()").value(3))
+                .andExpect(jsonPath("$.paths['/api/workouts/filter'].get.parameters.length()").value(5))
+                .andExpect(jsonPath("$.components.schemas.CreateWorkoutMetricRequest").exists())
+                .andExpect(jsonPath("$.components.schemas.WorkoutMetricResponse").exists())
+                .andExpect(jsonPath("$.components.schemas.ApiErrorResponse").exists());
+
+        mockMvc.perform(get("/swagger-ui/index.html"))
+                .andExpect(status().isOk());
+    }
+
     private void createWorkout(String workoutType, String startedAt, String endedAt) throws Exception {
         mockMvc.perform(post("/api/workouts")
                         .contentType(APPLICATION_JSON)
