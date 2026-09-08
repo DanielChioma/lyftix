@@ -11,6 +11,7 @@ workers/.ruff_cache/
 workers/**/__pycache__/
 workers/**/*.egg-info/
 workers/state/
+workers/input/
 workers/**/*.state.json
 workers/**/*.state.json.lock
 

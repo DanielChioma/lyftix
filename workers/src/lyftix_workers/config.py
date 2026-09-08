@@ -1,6 +1,7 @@
+import os
 from pathlib import Path
 
-from pydantic import AnyHttpUrl, Field, SecretStr
+from pydantic import AnyHttpUrl, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -41,3 +42,39 @@ class WorkerSettings(BaseSettings):
         default=Path("~/.local/state/lyftix/github.json"),
         validation_alias="WORKER_STATE_PATH",
     )
+
+
+class CodingSessionSettings(BaseSettings):
+    """Environment-only configuration for coding-session ingestion."""
+
+    model_config = SettingsConfigDict(extra="ignore")
+
+    lyftix_api_base_url: AnyHttpUrl = Field(validation_alias="LYFTIX_API_BASE_URL")
+    coding_sessions_input_path: Path = Field(validation_alias="CODING_SESSIONS_INPUT_PATH")
+    coding_session_default_source: str | None = Field(
+        default=None,
+        max_length=100,
+        validation_alias="CODING_SESSION_DEFAULT_SOURCE",
+    )
+    http_timeout_seconds: float = Field(
+        default=10.0,
+        gt=0,
+        validation_alias="HTTP_TIMEOUT_SECONDS",
+    )
+
+    @field_validator("coding_sessions_input_path")
+    @classmethod
+    def validate_input_path(cls, value: Path) -> Path:
+        path = value.expanduser()
+        if not path.is_file():
+            raise ValueError("coding sessions input path must be an existing file")
+        if not os.access(path, os.R_OK):
+            raise ValueError("coding sessions input path must be readable")
+        return path
+
+    @field_validator("coding_session_default_source")
+    @classmethod
+    def validate_default_source(cls, value: str | None) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("coding session default source must not be blank")
+        return value
