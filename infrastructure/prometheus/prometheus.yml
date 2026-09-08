@@ -9,3 +9,13 @@ scrape_configs:
       # The host alias is supplied by Docker Desktop or Compose's host-gateway mapping.
       - targets:
           - host.docker.internal:8080
+
+  - job_name: postgres
+    static_configs:
+      - targets:
+          - postgres-exporter:9187
+
+  - job_name: cadvisor
+    static_configs:
+      - targets:
+          - cadvisor:8080
