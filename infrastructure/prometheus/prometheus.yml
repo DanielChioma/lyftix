@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: lyftix-backend
+    metrics_path: /actuator/prometheus
+    static_configs:
+      # The host alias is supplied by Docker Desktop or Compose's host-gateway mapping.
+      - targets:
+          - host.docker.internal:8080
