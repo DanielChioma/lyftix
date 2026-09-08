@@ -133,4 +133,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(errorResponse);
     }
+
+    @ExceptionHandler(InvalidSystemMetricException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidSystemMetricException(
+            InvalidSystemMetricException exception
+    ) {
+        ApiErrorResponse errorResponse = new ApiErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid System Metric",
+                List.of(exception.getMessage())
+        );
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
 }

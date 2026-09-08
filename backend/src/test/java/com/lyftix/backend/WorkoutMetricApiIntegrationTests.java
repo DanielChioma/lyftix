@@ -125,8 +125,8 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
                 String.class
         );
 
-        assertThat(successfulMigrations).isEqualTo(5);
-        assertThat(versions).containsExactly("1", "2", "3", "4", "5");
+        assertThat(successfulMigrations).isEqualTo(6);
+        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6");
     }
 
     @Test

@@ -10,24 +10,35 @@ from pydantic import ValidationError
 
 from lyftix_workers.coding_sessions.client import CodingSessionClient
 from lyftix_workers.coding_sessions.ingestion import CodingSessionIngestionJob
-from lyftix_workers.config import CodingSessionSettings, WorkerSettings
+from lyftix_workers.config import CodingSessionSettings, SystemMetricSettings, WorkerSettings
 from lyftix_workers.github.client import GitHubApiError, GitHubClient
 from lyftix_workers.github.ingestion import GitHubIngestionJob
 from lyftix_workers.lyftix_client import LyftixClient
 from lyftix_workers.scheduler import GitHubScheduler, RunLock
 from lyftix_workers.state import CheckpointError, CheckpointStore
+from lyftix_workers.system_metrics.client import SystemMetricApiError, SystemMetricClient
+from lyftix_workers.system_metrics.collector import (
+    SystemMetricCollectionError,
+    SystemMetricCollector,
+)
+from lyftix_workers.system_metrics.ingestion import SystemMetricIngestionJob
 
 LOGGER = logging.getLogger(__name__)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run Lyftix ingestion workers")
-    parser.add_argument("job", choices=["github", "github-schedule", "coding-sessions"])
+    parser.add_argument(
+        "job",
+        choices=["github", "github-schedule", "coding-sessions", "system-metrics"],
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
     if args.job == "coding-sessions":
         return run_coding_sessions()
+    if args.job == "system-metrics":
+        return run_system_metrics()
     return run_github(args.job)
 
 
@@ -46,6 +57,29 @@ def run_coding_sessions() -> int:
             settings.coding_session_default_source,
         ).run()
     return 0 if summary.successful else 1
+
+
+def run_system_metrics() -> int:
+    try:
+        settings = SystemMetricSettings()
+    except ValidationError as exc:
+        LOGGER.error("Invalid system-metrics configuration: %s", exc)
+        return 2
+
+    timeout = httpx.Timeout(settings.http_timeout_seconds)
+    try:
+        with httpx.Client(timeout=timeout) as http_client:
+            SystemMetricIngestionJob(
+                SystemMetricCollector(
+                    settings.system_metrics_source,
+                    settings.system_metrics_disk_path,
+                ),
+                SystemMetricClient(http_client, str(settings.lyftix_api_base_url)),
+            ).run()
+    except (SystemMetricCollectionError, SystemMetricApiError) as exc:
+        LOGGER.error("System metric ingestion failed: %s", exc)
+        return 1
+    return 0
 
 
 def run_github(job: str) -> int:

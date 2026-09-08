@@ -78,3 +78,43 @@ class CodingSessionSettings(BaseSettings):
         if value is not None and not value.strip():
             raise ValueError("coding session default source must not be blank")
         return value
+
+
+class SystemMetricSettings(BaseSettings):
+    """Environment-only configuration for one system metric snapshot."""
+
+    model_config = SettingsConfigDict(extra="ignore")
+
+    lyftix_api_base_url: AnyHttpUrl = Field(validation_alias="LYFTIX_API_BASE_URL")
+    system_metrics_source: str = Field(
+        default="local",
+        min_length=1,
+        max_length=100,
+        validation_alias="SYSTEM_METRICS_SOURCE",
+    )
+    system_metrics_disk_path: Path = Field(
+        default=Path("/"),
+        validation_alias="SYSTEM_METRICS_DISK_PATH",
+    )
+    http_timeout_seconds: float = Field(
+        default=10.0,
+        gt=0,
+        validation_alias="HTTP_TIMEOUT_SECONDS",
+    )
+
+    @field_validator("system_metrics_source")
+    @classmethod
+    def validate_source(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("system metrics source must not be blank")
+        return value
+
+    @field_validator("system_metrics_disk_path")
+    @classmethod
+    def validate_disk_path(cls, value: Path) -> Path:
+        path = value.expanduser()
+        if not path.is_dir():
+            raise ValueError("system metrics disk path must be an existing directory")
+        if not os.access(path, os.R_OK):
+            raise ValueError("system metrics disk path must be readable")
+        return path

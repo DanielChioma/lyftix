@@ -125,7 +125,7 @@ class CodingSessionApiIntegrationTests extends PostgreSqlIntegrationTest {
     void appliesMigrationAndPublishesOpenApiSchemas() throws Exception {
         assertThat(jdbcTemplate.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank", String.class))
-                .containsExactly("1", "2", "3", "4", "5");
+                .containsExactly("1", "2", "3", "4", "5", "6");
         mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.paths['/api/coding-sessions'].post").exists())
                 .andExpect(jsonPath("$.paths['/api/coding-sessions'].get").exists())
