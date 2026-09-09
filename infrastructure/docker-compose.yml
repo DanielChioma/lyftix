@@ -33,8 +33,22 @@ services:
       - /dev/disk:/dev/disk:ro
     restart: unless-stopped
 
+  alertmanager:
+    image: prom/alertmanager:v0.33.1
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    ports:
+      - "${ALERTMANAGER_PORT:-9093}:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    restart: unless-stopped
+
   prometheus:
     image: prom/prometheus:v3.13.3
+    depends_on:
+      - alertmanager
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
@@ -44,6 +58,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
       - prometheus_data:/prometheus
     restart: unless-stopped
 
@@ -67,3 +82,4 @@ volumes:
   postgres_data:
   prometheus_data:
   grafana_data:
+  alertmanager_data:

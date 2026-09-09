@@ -1,0 +1,73 @@
+groups:
+  - name: lyftix-infrastructure
+    rules:
+      - alert: BackendDown
+        expr: up{job="lyftix-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Lyftix backend target is down
+          description: Prometheus has been unable to scrape the Lyftix backend for more than 2 minutes.
+
+      - alert: PostgresExporterDown
+        expr: up{job="postgres"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: PostgreSQL exporter target is down
+          description: Prometheus has been unable to scrape the PostgreSQL exporter for more than 2 minutes.
+
+      - alert: CadvisorDown
+        expr: up{job="cadvisor"} == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: cAdvisor target is down
+          description: Prometheus has been unable to scrape cAdvisor for more than 2 minutes.
+
+      - alert: HighBackendCPU
+        expr: avg(process_cpu_usage{application="lyftix-backend"}) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Lyftix backend CPU usage is high
+          description: Average backend process CPU usage has exceeded 80% for more than 5 minutes.
+
+      - alert: HighBackendHeapUsage
+        expr: sum(jvm_memory_used_bytes{application="lyftix-backend", area="heap"}) / clamp_min(sum(jvm_memory_max_bytes{application="lyftix-backend", area="heap"}), 1) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Lyftix backend heap usage is high
+          description: Backend JVM heap usage has exceeded 85% of its reported maximum for more than 5 minutes.
+
+      - alert: HighHttp5xxRate
+        expr: sum(rate(http_server_requests_seconds_count{application="lyftix-backend", status=~"5.."}[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Lyftix backend HTTP 5xx rate is high
+          description: The backend has produced more than 0.1 HTTP 5xx responses per second for more than 5 minutes.
+
+      - alert: HighPostgresConnectionUsage
+        expr: sum(pg_stat_activity_count{datname="lyftix"}) / clamp_min(max(pg_settings_max_connections), 1) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: PostgreSQL connection usage is high
+          description: Lyftix database connections have exceeded 80% of the configured PostgreSQL maximum for more than 5 minutes.
+
+      - alert: PostgresDeadlocksDetected
+        expr: increase(pg_stat_database_deadlocks{datname="lyftix"}[5m]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: PostgreSQL deadlock detected
+          description: At least one deadlock was recorded in the Lyftix database during the last 5 minutes.
