@@ -1,0 +1,90 @@
+:root {
+  color: #1f2933;
+  background: #f5f7f4;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+a { color: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+
+.app-shell { min-height: 100vh; display: grid; grid-template-columns: 250px 1fr; }
+.sidebar { padding: 2rem 1.25rem; background: #13251d; color: #dce8df; display: flex; flex-direction: column; justify-content: space-between; gap: 2rem; }
+.brand { display: inline-flex; align-items: center; gap: .75rem; color: #fff; font-size: 1.25rem; font-weight: 750; text-decoration: none; letter-spacing: -.02em; }
+.brand-mark { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: .6rem; color: #13251d; background: #8ee6b1; }
+nav ul { display: grid; gap: .3rem; margin: 2.5rem 0 0; padding: 0; list-style: none; }
+nav a { display: block; padding: .7rem .8rem; border-radius: .55rem; color: #b9c9bf; text-decoration: none; font-weight: 600; }
+nav a:hover { color: #fff; background: #1d3529; }
+nav a.active { color: #13251d; background: #8ee6b1; }
+.content { width: min(1180px, 100%); padding: clamp(2rem, 6vw, 5.5rem); }
+h1 { max-width: 820px; margin: .4rem 0 1rem; color: #13251d; font-size: clamp(2.5rem, 6vw, 5rem); line-height: .98; letter-spacing: -.055em; }
+h2 { margin: 0; color: #1b3025; font-size: 1rem; }
+p { line-height: 1.65; }
+.eyebrow { margin: 0; color: #257347; font-size: .76rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.lede { max-width: 670px; color: #5b6861; font-size: 1.15rem; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-top: 3.5rem; }
+.summary-card, .empty-state { padding: 1.4rem; border: 1px solid #dce3dd; border-radius: 1rem; background: #fff; box-shadow: 0 12px 35px rgba(24, 48, 36, .05); }
+.summary-card p, .empty-state p { margin-bottom: 0; color: #6a756f; font-size: .9rem; }
+.placeholder-page, .not-found { max-width: 900px; }
+.empty-state { margin-top: 3rem; border-style: dashed; box-shadow: none; }
+.button-link { display: inline-block; margin-top: 1rem; padding: .75rem 1rem; border-radius: .6rem; background: #1e6f45; color: #fff; font-weight: 700; text-decoration: none; }
+.status { display: inline-flex; align-items: center; gap: .45rem; color: #c8d5cd; font-size: .78rem; font-weight: 700; }
+.status::before { width: .5rem; height: .5rem; border-radius: 50%; background: currentColor; content: ""; }
+.status-connected { color: #8ee6b1; }
+.status-checking { color: #d6c986; }
+.status-unavailable { color: #ffaaa0; }
+.status-panel { display: grid; gap: .5rem; }
+.api-error { margin: 0; color: #6f1f19; font-size: .8rem; }
+.sidebar .api-error { color: #ffc1ba; }
+.api-error p { margin: 0; }
+.api-error ul { margin: .35rem 0; padding-left: 1.1rem; }
+.correlation-id code { overflow-wrap: anywhere; }
+.date-range { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin: 2.5rem 0 3rem; padding: 1.1rem 1.25rem; border: 1px solid #d8e1da; border-radius: 1rem; background: #fff; }
+.date-range h2, .analytics-section > h2, .chart-heading h2 { font-size: 1rem; }
+.date-range p, .chart-heading p { margin: .25rem 0 0; color: #6a756f; font-size: .85rem; }
+.range-controls, .custom-range { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
+.range-controls label { display: grid; gap: .3rem; color: #536159; font-size: .75rem; font-weight: 700; }
+.range-controls select, .range-controls input { min-height: 2.5rem; padding: .55rem .7rem; border: 1px solid #bdc9c0; border-radius: .5rem; background: #fff; color: #1f2933; font: inherit; }
+.range-controls button { min-height: 2.5rem; padding: .55rem .9rem; border: 0; border-radius: .5rem; background: #1e6f45; color: #fff; font-weight: 750; cursor: pointer; }
+.field-error { flex-basis: 100%; margin: 0; color: #982d24; font-size: .85rem; }
+.analytics-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.analytics-section { padding: 1.35rem; border: 1px solid #dce3dd; border-radius: 1rem; background: rgba(255, 255, 255, .72); }
+.analytics-section > h2 { margin-bottom: 1rem; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(125px, 1fr)); gap: .75rem; }
+.kpi-card { min-width: 0; padding: 1rem; border-radius: .75rem; background: #fff; box-shadow: 0 8px 24px rgba(24, 48, 36, .05); }
+.kpi-card p { margin: 0; color: #657169; font-size: .78rem; font-weight: 700; }
+.kpi-card strong { display: block; margin-top: .3rem; color: #183024; font-size: clamp(1.4rem, 3vw, 2rem); letter-spacing: -.04em; }
+.section-empty { margin: .75rem 0 0; color: #6a756f; font-size: .82rem; }
+.skeleton, .chart-skeleton { display: block; min-height: 5rem; border-radius: .75rem; background: linear-gradient(90deg, #e8ede9 25%, #f5f7f5 50%, #e8ede9 75%); background-size: 200% 100%; animation: skeleton 1.4s ease-in-out infinite; }
+.chart-skeleton { min-height: 22rem; margin-top: 1rem; }
+.charts-grid { display: grid; gap: 1rem; margin-top: 1rem; }
+.chart-card { min-width: 0; padding: 1.35rem 1rem 1rem; border: 1px solid #dce3dd; border-radius: 1rem; background: #fff; }
+.chart-heading { padding: 0 .35rem .75rem; }
+.chart-container { width: 100%; height: 300px; }
+.chart-card .empty-state { margin: .75rem 0 0; }
+@keyframes skeleton { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+:focus-visible { outline: 3px solid #edb44f; outline-offset: 3px; }
+
+@media (max-width: 760px) {
+  .app-shell { display: block; }
+  .sidebar { min-width: 0; padding: 1rem; overflow: hidden; }
+  .sidebar > div:first-child, .sidebar nav { min-width: 0; }
+  .sidebar > div:first-child { display: grid; gap: 1rem; }
+  nav ul { display: flex; width: 100%; min-width: 0; gap: .25rem; margin: 0; padding-bottom: .3rem; overflow-x: auto; }
+  nav a { white-space: nowrap; }
+  .content { padding: 2.5rem 1.2rem; }
+  h1 { font-size: clamp(2.4rem, 14vw, 4rem); }
+  .analytics-sections { grid-template-columns: 1fr; }
+  .date-range, .range-controls, .custom-range { align-items: stretch; }
+  .range-controls, .custom-range { width: 100%; }
+  .range-controls label { flex: 1 1 135px; }
+  .chart-container { height: 260px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+}
