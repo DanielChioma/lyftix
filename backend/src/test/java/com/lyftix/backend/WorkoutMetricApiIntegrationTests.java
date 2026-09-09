@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,7 +42,7 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void createsAndPersistsValidWorkoutWithAuditTimestamps() throws Exception {
-        mockMvc.perform(post("/api/workouts")
+        mockMvc.perform(post("/api/workouts").with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content(workoutJson("Running", 7, 450,
                                 "2026-09-01T08:00:00Z", "2026-09-01T09:00:00Z")))
@@ -59,7 +60,7 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void returnsBadRequestForBeanValidationFailure() throws Exception {
-        mockMvc.perform(post("/api/workouts")
+        mockMvc.perform(post("/api/workouts").with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content(workoutJson("", 11, -1,
                                 "2026-09-01T08:00:00Z", "2026-09-01T09:00:00Z")))
@@ -71,7 +72,7 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void returnsStandardizedErrorForInvalidWorkoutTime() throws Exception {
-        mockMvc.perform(post("/api/workouts")
+        mockMvc.perform(post("/api/workouts").with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content(workoutJson("Cycling", 5, 300,
                                 "2026-09-01T09:00:00Z", "2026-09-01T08:00:00Z")))
@@ -126,8 +127,8 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
                 String.class
         );
 
-        assertThat(successfulMigrations).isEqualTo(6);
-        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6");
+        assertThat(successfulMigrations).isEqualTo(7);
+        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7");
     }
 
     @Test
@@ -160,7 +161,7 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
     }
 
     private void createWorkout(String workoutType, String startedAt, String endedAt) throws Exception {
-        mockMvc.perform(post("/api/workouts")
+        mockMvc.perform(post("/api/workouts").with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content(workoutJson(workoutType, 5, 300, startedAt, endedAt)))
                 .andExpect(status().isCreated());

@@ -13,6 +13,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,7 +59,7 @@ class RequestLoggingIntegrationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void validationFailureRetainsCorrelationHeaderAndApiErrorShape() throws Exception {
-        mockMvc.perform(post("/api/workouts")
+        mockMvc.perform(post("/api/workouts").with(csrf())
                         .header(RequestLoggingFilter.CORRELATION_ID_HEADER, "validation-request-123")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))

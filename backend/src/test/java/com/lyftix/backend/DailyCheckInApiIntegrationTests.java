@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -64,7 +65,7 @@ class DailyCheckInApiIntegrationTests extends PostgreSqlIntegrationTest {
     void returnsConflictForDuplicateDateAndKeepsOneRow() throws Exception {
         createCheckIn("2026-09-07", 8, 7, 9, 3, 480, 8);
 
-        mockMvc.perform(post("/api/daily-check-ins").contentType(APPLICATION_JSON)
+        mockMvc.perform(post("/api/daily-check-ins").with(csrf()).contentType(APPLICATION_JSON)
                         .content(checkInJson("2026-09-07", 4, 4, 4, 4, 420, 4)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.timestamp").isNotEmpty())
@@ -136,7 +137,7 @@ class DailyCheckInApiIntegrationTests extends PostgreSqlIntegrationTest {
     void appliesV5MigrationAndCreatesNamedConstraints() {
         assertThat(jdbcTemplate.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank", String.class
-        )).containsExactly("1", "2", "3", "4", "5", "6");
+        )).containsExactly("1", "2", "3", "4", "5", "6", "7");
 
         List<String> constraints = jdbcTemplate.queryForList("""
                 SELECT constraint_name FROM information_schema.table_constraints
@@ -184,13 +185,13 @@ class DailyCheckInApiIntegrationTests extends PostgreSqlIntegrationTest {
     private org.springframework.test.web.servlet.ResultActions createCheckIn(
             String date, int mood, int energy, int focus, int stress, int sleepMinutes, int productivity
     ) throws Exception {
-        return mockMvc.perform(post("/api/daily-check-ins").contentType(APPLICATION_JSON)
+        return mockMvc.perform(post("/api/daily-check-ins").with(csrf()).contentType(APPLICATION_JSON)
                         .content(checkInJson(date, mood, energy, focus, stress, sleepMinutes, productivity)))
                 .andExpect(status().isCreated());
     }
 
     private void assertValidationError(String content) throws Exception {
-        mockMvc.perform(post("/api/daily-check-ins").contentType(APPLICATION_JSON).content(content))
+        mockMvc.perform(post("/api/daily-check-ins").with(csrf()).contentType(APPLICATION_JSON).content(content))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").value("Validation Failed"))

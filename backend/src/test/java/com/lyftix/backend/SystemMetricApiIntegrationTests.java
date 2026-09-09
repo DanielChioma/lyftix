@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,7 +44,7 @@ class SystemMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void rejectsBeanValidationViolations() throws Exception {
-        mockMvc.perform(post("/api/system-metrics").contentType(APPLICATION_JSON)
+        mockMvc.perform(post("/api/system-metrics").with(csrf()).contentType(APPLICATION_JSON)
                         .content(metricJson("", "2026-09-08T10:00:00Z").replace("25.5", "101.0")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
@@ -55,7 +56,7 @@ class SystemMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
     void rejectsInvalidByteRelationshipsWithStandardError() throws Exception {
         String body = metricJson("host-one", "2026-09-08T10:00:00Z")
                 .replace("\"memoryUsedBytes\":400", "\"memoryUsedBytes\":1001");
-        mockMvc.perform(post("/api/system-metrics").contentType(APPLICATION_JSON).content(body))
+        mockMvc.perform(post("/api/system-metrics").with(csrf()).contentType(APPLICATION_JSON).content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Invalid System Metric"))
                 .andExpect(jsonPath("$.details[0]")
@@ -117,7 +118,7 @@ class SystemMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
         assertThat(jdbcTemplate.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank",
                 String.class
-        )).containsExactly("1", "2", "3", "4", "5", "6");
+        )).containsExactly("1", "2", "3", "4", "5", "6", "7");
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM pg_indexes WHERE tablename = 'system_metrics' "
                         + "AND indexname IN ('idx_system_metrics_collected_at', "
@@ -138,7 +139,7 @@ class SystemMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
     private org.springframework.test.web.servlet.ResultActions createMetric(
             String hostname, String collectedAt
     ) throws Exception {
-        return mockMvc.perform(post("/api/system-metrics").contentType(APPLICATION_JSON)
+        return mockMvc.perform(post("/api/system-metrics").with(csrf()).contentType(APPLICATION_JSON)
                         .content(metricJson(hostname, collectedAt)))
                 .andExpect(status().isCreated());
     }

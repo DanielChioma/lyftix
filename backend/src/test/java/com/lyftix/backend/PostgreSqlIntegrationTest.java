@@ -6,6 +6,6 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, AuthenticatedMockMvcConfiguration.class})
 abstract class PostgreSqlIntegrationTest {
 }

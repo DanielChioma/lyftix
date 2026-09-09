@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,7 +44,7 @@ class CodingSessionApiIntegrationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void returnsStandardizedBeanValidationError() throws Exception {
-        mockMvc.perform(post("/api/coding-sessions").contentType(APPLICATION_JSON)
+        mockMvc.perform(post("/api/coding-sessions").with(csrf()).contentType(APPLICATION_JSON)
                         .content(sessionJson("", "", "2026-09-01T09:00:00Z", "2026-09-01T10:00:00Z")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
@@ -53,7 +54,7 @@ class CodingSessionApiIntegrationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void returnsStandardizedInvalidSessionTimeError() throws Exception {
-        mockMvc.perform(post("/api/coding-sessions").contentType(APPLICATION_JSON)
+        mockMvc.perform(post("/api/coding-sessions").with(csrf()).contentType(APPLICATION_JSON)
                         .content(sessionJson("lyftix", "Java", "2026-09-01T10:00:00Z", "2026-09-01T09:00:00Z")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Invalid Coding Session"))
@@ -141,7 +142,7 @@ class CodingSessionApiIntegrationTests extends PostgreSqlIntegrationTest {
     void appliesMigrationAndPublishesOpenApiSchemas() throws Exception {
         assertThat(jdbcTemplate.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank", String.class))
-                .containsExactly("1", "2", "3", "4", "5", "6");
+                .containsExactly("1", "2", "3", "4", "5", "6", "7");
         mockMvc.perform(get("/v3/api-docs")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.paths['/api/coding-sessions'].post").exists())
                 .andExpect(jsonPath("$.paths['/api/coding-sessions'].get").exists())
@@ -153,7 +154,7 @@ class CodingSessionApiIntegrationTests extends PostgreSqlIntegrationTest {
 
     private org.springframework.test.web.servlet.ResultActions createSession(
             String project, String language, String start, String end) throws Exception {
-        return mockMvc.perform(post("/api/coding-sessions").contentType(APPLICATION_JSON)
+        return mockMvc.perform(post("/api/coding-sessions").with(csrf()).contentType(APPLICATION_JSON)
                         .content(sessionJson(project, language, start, end)))
                 .andExpect(status().isCreated());
     }

@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,7 +39,7 @@ class GitHubActivityApiIntegrationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void createsAndPersistsActivityWithAuditTimestamps() throws Exception {
-        mockMvc.perform(post("/api/github-activities")
+        mockMvc.perform(post("/api/github-activities").with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content(activityJson("PullRequestOpened", "event-1", "2026-09-01T12:00:00Z")))
                 .andExpect(status().isCreated())
@@ -56,7 +57,7 @@ class GitHubActivityApiIntegrationTests extends PostgreSqlIntegrationTest {
 
     @Test
     void returnsStandardizedValidationErrors() throws Exception {
-        mockMvc.perform(post("/api/github-activities")
+        mockMvc.perform(post("/api/github-activities").with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content(activityJson("", "", "2026-09-01T12:00:00Z")))
                 .andExpect(status().isBadRequest())
@@ -165,7 +166,7 @@ class GitHubActivityApiIntegrationTests extends PostgreSqlIntegrationTest {
     void returnsConflictWhenExternalIdAlreadyExists() throws Exception {
         createActivity("PushEvent", "duplicate-api-event", "2026-09-01T12:00:00Z");
 
-        mockMvc.perform(post("/api/github-activities")
+        mockMvc.perform(post("/api/github-activities").with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content(activityJson("IssueOpened", "duplicate-api-event", "2026-09-02T12:00:00Z")))
                 .andExpect(status().isConflict())
@@ -193,7 +194,7 @@ class GitHubActivityApiIntegrationTests extends PostgreSqlIntegrationTest {
                 Integer.class
         );
 
-        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6");
+        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7");
         assertThat(tableCount).isEqualTo(1);
     }
 
@@ -214,7 +215,7 @@ class GitHubActivityApiIntegrationTests extends PostgreSqlIntegrationTest {
     }
 
     private void createActivity(String activityType, String externalId, String occurredAt) throws Exception {
-        mockMvc.perform(post("/api/github-activities")
+        mockMvc.perform(post("/api/github-activities").with(csrf())
                         .contentType(APPLICATION_JSON)
                         .content(activityJson(activityType, externalId, occurredAt)))
                 .andExpect(status().isCreated());
