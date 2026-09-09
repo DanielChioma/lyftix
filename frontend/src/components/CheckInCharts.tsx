@@ -20,11 +20,11 @@ export function CheckInCharts({ analytics }: { analytics: CheckInAnalyticsRespon
           <YAxis domain={[1, 10]} allowDecimals={false} label={{ value: 'Rating (1–10)', angle: -90, position: 'insideLeft' }} />
           <Tooltip labelFormatter={(value) => formatChartDate(String(value))} />
           <Legend />
-          <Line connectNulls={false} dataKey="mood" name="Mood" stroke="#216e45" strokeWidth={2} />
-          <Line connectNulls={false} dataKey="energy" name="Energy" stroke="#d18a24" strokeWidth={2} />
-          <Line connectNulls={false} dataKey="focus" name="Focus" stroke="#315f9d" strokeWidth={2} />
-          <Line connectNulls={false} dataKey="stress" name="Stress" stroke="#a34a4a" strokeWidth={2} />
-          <Line connectNulls={false} dataKey="productivity" name="Productivity" stroke="#7355a3" strokeWidth={2} />
+          <Line connectNulls={false} dataKey="mood" name="Mood" stroke="var(--chart-green)" strokeWidth={2} />
+          <Line connectNulls={false} dataKey="energy" name="Energy" stroke="var(--chart-yellow)" strokeWidth={2} />
+          <Line connectNulls={false} dataKey="focus" name="Focus" stroke="var(--chart-blue)" strokeWidth={2} />
+          <Line connectNulls={false} dataKey="stress" name="Stress" stroke="var(--chart-red)" strokeWidth={2} />
+          <Line connectNulls={false} dataKey="productivity" name="Productivity" stroke="var(--chart-purple)" strokeWidth={2} />
         </LineChart></ResponsiveContainer></div>}
     </section>
     <section className="chart-card" aria-labelledby="sleep-trend-title">
@@ -39,7 +39,7 @@ export function CheckInCharts({ analytics }: { analytics: CheckInAnalyticsRespon
           <YAxis unit="h" label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
           <Tooltip labelFormatter={(value) => formatChartDate(String(value))} formatter={(value) => [`${Number(value).toFixed(1)}h`, 'Sleep']} />
           <Legend />
-          <Bar dataKey="sleepHours" name="Sleep hours" fill="#487b93" />
+          <Bar dataKey="sleepHours" name="Sleep hours" fill="var(--chart-teal)" />
         </BarChart></ResponsiveContainer></div>}
     </section>
   </div>

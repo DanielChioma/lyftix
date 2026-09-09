@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import { App } from './App'
 import { renderWithProviders } from './test/renderApp'
 
@@ -46,5 +46,15 @@ describe('application routing', () => {
     renderWithProviders(<App />, '/missing')
     expect(screen.getByRole('heading', { name: 'Page not found' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Return to dashboard' })).toHaveAttribute('href', '/')
+  })
+
+  it('preserves the selected theme across route navigation', () => {
+    renderWithProviders(<App />)
+    const theme = screen.getByRole('combobox', { name: 'Theme' })
+    fireEvent.change(theme, { target: { value: 'dark' } })
+    fireEvent.click(screen.getByRole('link', { name: 'Workouts' }))
+    expect(screen.getByRole('heading', { name: 'Workout Analytics' })).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Theme' })).toHaveValue('dark')
+    expect(document.documentElement).toHaveAttribute('data-theme', 'dark')
   })
 })

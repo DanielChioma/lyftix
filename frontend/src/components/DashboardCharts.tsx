@@ -24,7 +24,7 @@ export function DashboardCharts({ daily }: { daily: DailyAnalyticsSummary[] }) {
         <ResponsiveContainer width="100%" height="100%"><BarChart data={data} accessibilityLayer>
           <CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="date" tickFormatter={formatChartDate} /><YAxis allowDecimals={false} />
           <Tooltip labelFormatter={(value) => formatChartDate(String(value))} /><Legend />
-          <Bar dataKey="workoutCount" name="Workouts" fill="#257347" /><Bar dataKey="codingSessionCount" name="Coding sessions" fill="#3f6da6" /><Bar dataKey="githubActivityCount" name="GitHub activity" fill="#b06b2c" />
+          <Bar dataKey="workoutCount" name="Workouts" fill="var(--chart-green)" /><Bar dataKey="codingSessionCount" name="Coding sessions" fill="var(--chart-blue)" /><Bar dataKey="githubActivityCount" name="GitHub activity" fill="var(--chart-orange)" />
         </BarChart></ResponsiveContainer>
       </div>}
     </ChartFrame>
@@ -33,9 +33,9 @@ export function DashboardCharts({ daily }: { daily: DailyAnalyticsSummary[] }) {
         <ResponsiveContainer width="100%" height="100%"><LineChart data={data} accessibilityLayer>
           <CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="date" tickFormatter={formatChartDate} /><YAxis domain={[0, 10]} />
           <Tooltip labelFormatter={(value) => formatChartDate(String(value))} /><Legend />
-          <Line connectNulls={false} dataKey="energy" name="Energy" stroke="#257347" strokeWidth={2} />
-          <Line connectNulls={false} dataKey="focus" name="Focus" stroke="#3f6da6" strokeDasharray="6 3" strokeWidth={2} />
-          <Line connectNulls={false} dataKey="productivity" name="Productivity" stroke="#b06b2c" strokeDasharray="2 3" strokeWidth={2} />
+          <Line connectNulls={false} dataKey="energy" name="Energy" stroke="var(--chart-green)" strokeWidth={2} />
+          <Line connectNulls={false} dataKey="focus" name="Focus" stroke="var(--chart-blue)" strokeDasharray="6 3" strokeWidth={2} />
+          <Line connectNulls={false} dataKey="productivity" name="Productivity" stroke="var(--chart-orange)" strokeDasharray="2 3" strokeWidth={2} />
         </LineChart></ResponsiveContainer>
       </div>}
     </ChartFrame>
@@ -44,8 +44,8 @@ export function DashboardCharts({ daily }: { daily: DailyAnalyticsSummary[] }) {
         <ResponsiveContainer width="100%" height="100%"><LineChart data={data} accessibilityLayer>
           <CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="date" tickFormatter={formatChartDate} /><YAxis unit="h" />
           <Tooltip labelFormatter={(value) => formatChartDate(String(value))} formatter={(value) => [`${value}h`]} /><Legend />
-          <Line dataKey="codingHours" name="Coding hours" stroke="#3f6da6" strokeWidth={2} />
-          <Line dataKey="workoutHours" name="Workout hours" stroke="#257347" strokeDasharray="6 3" strokeWidth={2} />
+          <Line dataKey="codingHours" name="Coding hours" stroke="var(--chart-blue)" strokeWidth={2} />
+          <Line dataKey="workoutHours" name="Workout hours" stroke="var(--chart-green)" strokeDasharray="6 3" strokeWidth={2} />
         </LineChart></ResponsiveContainer>
       </div>}
     </ChartFrame>

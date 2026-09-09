@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { BackendStatus } from './BackendStatus'
+import { ThemeControl } from './ThemeControl'
 
 const navigation = [
   { to: '/', label: 'Dashboard', end: true },
@@ -46,7 +47,10 @@ export function AppShell() {
             </ul>
           </nav>
         </div>
-        <BackendStatus />
+        <div className="shell-controls">
+          <ThemeControl />
+          <BackendStatus />
+        </div>
       </aside>
       <main className="content" id="main-content">
         <Outlet />
