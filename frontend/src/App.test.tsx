@@ -20,6 +20,16 @@ describe('application routing', () => {
     expect(screen.getByRole('heading', { name: 'Lyftix Overview' })).toBeInTheDocument()
   })
 
+  it('brings the active navigation item into view for a deep link', () => {
+    const scrollIntoView = vi.fn()
+    Element.prototype.scrollIntoView = scrollIntoView
+
+    renderWithProviders(<App />, '/system')
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' })
+    expect(screen.getByRole('link', { name: 'System' })).toHaveClass('active')
+  })
+
   it.each([
     ['/workouts', 'Workout Analytics'],
     ['/productivity', 'Productivity'],

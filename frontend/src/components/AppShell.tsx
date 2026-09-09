@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { BackendStatus } from './BackendStatus'
 
 const navigation = [
@@ -12,6 +13,15 @@ const navigation = [
 ]
 
 export function AppShell() {
+  const location = useLocation()
+  const navigationRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    navigationRef.current
+      ?.querySelector<HTMLAnchorElement>('a.active')
+      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+  }, [location.pathname])
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -20,7 +30,7 @@ export function AppShell() {
             <span className="brand-mark" aria-hidden="true">L</span>
             <span>Lyftix</span>
           </NavLink>
-          <nav aria-label="Primary navigation">
+          <nav aria-label="Primary navigation" ref={navigationRef}>
             <ul>
               {navigation.map((item) => (
                 <li key={item.to}>
