@@ -7,6 +7,7 @@ import { WorkoutPage } from './pages/WorkoutPage'
 import { ProductivityPage } from './pages/ProductivityPage'
 import { GitHubPage } from './pages/GitHubPage'
 import { CodingPage } from './pages/CodingPage'
+import { CheckInsPage } from './pages/CheckInsPage'
 
 export function App() {
   return (
@@ -17,7 +18,7 @@ export function App() {
         <Route path="productivity" element={<ProductivityPage />} />
         <Route path="github" element={<GitHubPage />} />
         <Route path="coding" element={<CodingPage />} />
-        <Route path="check-ins" element={<DomainPage title="Daily check-ins" description="Connect mood, energy, sleep, and daily context." />} />
+        <Route path="check-ins" element={<CheckInsPage />} />
         <Route path="system" element={<DomainPage title="System metrics" description="Inspect the operational signals collected by Lyftix." />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

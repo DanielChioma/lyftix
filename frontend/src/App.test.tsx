@@ -25,7 +25,7 @@ describe('application routing', () => {
     ['/productivity', 'Productivity'],
     ['/github', 'GitHub Activity'],
     ['/coding', 'Coding Sessions'],
-    ['/check-ins', 'Daily check-ins'],
+    ['/check-ins', 'Daily Check-ins'],
     ['/system', 'System metrics'],
   ])('routes %s to its page', (route, heading) => {
     renderWithProviders(<App />, route)

@@ -81,6 +81,17 @@ p { line-height: 1.65; }
 .coding-cards { display:none; gap:.75rem; }
 .coding-breakdowns { margin-top:1rem; }
 .coding-cards article { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:.75rem; padding:1rem; border:1px solid #e0e6e1; border-radius:.75rem; overflow-wrap:anywhere; }
+.check-in-charts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-top:1rem; }
+.check-in-period-summary { display:flex; flex-wrap:wrap; gap:.45rem 1.25rem; margin-top:1rem; color:#536159; font-size:.85rem; }
+.check-in-period-summary strong { color:#183024; }
+.check-in-table-wrap { overflow-x:auto; }
+.check-in-table { width:100%; min-width:850px; border-collapse:collapse; font-size:.82rem; }
+.check-in-table th,.check-in-table td { padding:.7rem; border-bottom:1px solid #e1e7e2; text-align:left; vertical-align:top; }
+.check-in-table th { color:#536159; font-size:.7rem; text-transform:uppercase; }
+.check-in-notes { overflow-wrap:anywhere; word-break:break-word; }
+.check-in-table .check-in-notes { max-width:220px; }
+.check-in-cards { display:none; gap:.75rem; }
+.check-in-cards article { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; padding:1rem; border:1px solid #e0e6e1; border-radius:.75rem; background:#fafbf9; overflow-wrap:anywhere; }
 .chart-card { min-width: 0; padding: 1.35rem 1rem 1rem; border: 1px solid #dce3dd; border-radius: 1rem; background: #fff; }
 .chart-heading { padding: 0 .35rem .75rem; }
 .chart-container { width: 100%; height: 300px; }
@@ -162,6 +173,12 @@ p { line-height: 1.65; }
   .coding-cards { display:grid; }
   .coding-cards article { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .coding-cards article p { grid-column:1/-1; }
+  .check-in-charts { grid-template-columns:1fr; }
+  .check-in-table-wrap { display:none; }
+  .check-in-cards { display:grid; }
+  .check-in-cards [data-label] { min-width:0; overflow-wrap:anywhere; }
+  .check-in-cards [data-label]::before { display:block; margin-bottom:.15rem; color:#6a756f; content:attr(data-label); font-size:.68rem; font-weight:750; letter-spacing:.04em; text-transform:uppercase; }
+  .check-in-cards [data-label="Date"],.check-in-cards [data-label="Notes"] { grid-column:1/-1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
