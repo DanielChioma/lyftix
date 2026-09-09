@@ -69,7 +69,7 @@ class GitHubActivityServiceTests {
 
     @Test
     void filtersByValidDateRange() {
-        when(gitHubActivityRepository.findByOccurredAtBetween(eq(START), eq(END), any(Pageable.class)))
+        when(gitHubActivityRepository.findByOccurredAtGreaterThanEqualAndOccurredAtLessThan(eq(START), eq(END), any(Pageable.class)))
                 .thenReturn(Page.empty());
 
         Page<GitHubActivityResponse> response = gitHubActivityService.filterGitHubActivities(
@@ -77,7 +77,7 @@ class GitHubActivityServiceTests {
         );
 
         assertThat(response).isEmpty();
-        verify(gitHubActivityRepository).findByOccurredAtBetween(eq(START), eq(END), any(Pageable.class));
+        verify(gitHubActivityRepository).findByOccurredAtGreaterThanEqualAndOccurredAtLessThan(eq(START), eq(END), any(Pageable.class));
     }
 
     @Test
@@ -112,7 +112,7 @@ class GitHubActivityServiceTests {
         assertThat(response).isEmpty();
         verify(gitHubActivityRepository).findByActivityType(eq("PushEvent"), any(Pageable.class));
         verify(gitHubActivityRepository, never())
-                .findByOccurredAtBetween(any(), any(), any(Pageable.class));
+                .findByOccurredAtGreaterThanEqualAndOccurredAtLessThan(any(), any(), any(Pageable.class));
     }
 
     private CreateGitHubActivityRequest validRequest() {

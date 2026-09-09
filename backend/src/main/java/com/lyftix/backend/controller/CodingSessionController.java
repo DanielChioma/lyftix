@@ -76,7 +76,7 @@ public class CodingSessionController {
     }
 
     @Operation(summary = "Filter coding sessions",
-            description = "Filters by optional exact project, language, and/or startedAt range")
+            description = "Filters by optional exact project, language, and/or a start-inclusive, end-exclusive startedAt range")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Filtered coding-session page returned", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "Invalid filter",
@@ -90,7 +90,7 @@ public class CodingSessionController {
             @RequestParam(required = false) String language,
             @Parameter(description = "Optional inclusive lower startedAt boundary; requires end")
             @RequestParam(required = false) Instant start,
-            @Parameter(description = "Optional inclusive upper startedAt boundary; must be after start")
+            @Parameter(description = "Optional exclusive upper startedAt boundary; must be after start")
             @RequestParam(required = false) Instant end,
             @Parameter(description = "Zero-based page index", example = "0") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Sessions per page", example = "10") @RequestParam(defaultValue = "10") int size,

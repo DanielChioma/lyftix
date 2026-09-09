@@ -91,7 +91,7 @@ public class GitHubActivityController {
 
     @Operation(
             summary = "Filter GitHub activities",
-            description = "Filters by an optional exact activity type and/or an occurredAt range"
+            description = "Filters by an optional exact activity type and/or a start-inclusive, end-exclusive occurredAt range"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Filtered GitHub activity page returned", useReturnTypeSchema = true),
@@ -107,7 +107,7 @@ public class GitHubActivityController {
             @RequestParam(required = false) String activityType,
             @Parameter(description = "Optional inclusive lower occurredAt boundary; must be provided with end", example = "2026-09-01T00:00:00Z")
             @RequestParam(required = false) Instant start,
-            @Parameter(description = "Optional inclusive upper occurredAt boundary; must be after start", example = "2026-09-30T23:59:59Z")
+            @Parameter(description = "Optional exclusive upper occurredAt boundary; must be after start", example = "2026-10-01T00:00:00Z")
             @RequestParam(required = false) Instant end,
             @Parameter(description = "Zero-based page index", example = "0")
             @RequestParam(defaultValue = "0") int page,

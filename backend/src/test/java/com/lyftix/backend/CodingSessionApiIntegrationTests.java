@@ -84,6 +84,22 @@ class CodingSessionApiIntegrationTests extends PostgreSqlIntegrationTest {
     }
 
     @Test
+    void usesStartInclusiveEndExclusiveBoundariesAtPostgresPrecision() throws Exception {
+        createSession("start", "Java", "2026-09-01T00:00:00Z", "2026-09-01T00:01:00Z");
+        createSession("late", "Java", "2026-09-02T23:59:59.999999Z", "2026-09-03T00:00:59.999999Z");
+        createSession("following", "Java", "2026-09-03T00:00:00Z", "2026-09-03T00:01:00Z");
+        mockMvc.perform(get("/api/coding-sessions/filter").param("start", "2026-09-01T00:00:00Z").param("end", "2026-09-03T00:00:00Z"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[*].projectName").value(org.hamcrest.Matchers.containsInAnyOrder("start", "late")));
+    }
+
+    @Test
+    void rejectsEqualFilterRange() throws Exception {
+        mockMvc.perform(get("/api/coding-sessions/filter").param("start", "2026-09-01T00:00:00Z").param("end", "2026-09-01T00:00:00Z"))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.details[0]").value("start must be before end"));
+    }
+
+    @Test
     void filtersByProject() throws Exception {
         createSession("lyftix", "Java", "2026-09-01T09:00:00Z", "2026-09-01T10:00:00Z");
         createSession("other", "Java", "2026-09-02T09:00:00Z", "2026-09-02T10:00:00Z");

@@ -4,6 +4,7 @@ import { BackendStatus } from './BackendStatus'
 const navigation = [
   { to: '/', label: 'Dashboard', end: true },
   { to: '/workouts', label: 'Workouts' },
+  { to: '/productivity', label: 'Productivity' },
   { to: '/github', label: 'GitHub' },
   { to: '/coding', label: 'Coding' },
   { to: '/check-ins', label: 'Check-ins' },

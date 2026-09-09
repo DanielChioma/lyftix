@@ -10,6 +10,14 @@ export function formatLocalDate(date: Date) {
   return `${year}-${month}-${day}`
 }
 
+export function startOfUtcDay(date: string) { return `${date}T00:00:00.000Z` }
+
+export function startOfFollowingUtcDay(date: string) {
+  const [year, month, day] = date.split('-').map(Number)
+  const followingDay = new Date(Date.UTC(year, month - 1, day + 1))
+  return `${followingDay.toISOString().slice(0, 10)}T00:00:00.000Z`
+}
+
 export function presetDateRange(preset: Exclude<DateRangePreset, 'custom'>, today = new Date()): AnalyticsDateRange {
   const end = new Date(today.getFullYear(), today.getMonth(), today.getDate())
   const start = new Date(end)

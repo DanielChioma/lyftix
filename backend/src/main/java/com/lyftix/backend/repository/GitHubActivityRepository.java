@@ -13,14 +13,18 @@ import java.util.List;
 
 public interface GitHubActivityRepository extends JpaRepository<GitHubActivity, Long> {
 
-    Page<GitHubActivity> findByOccurredAtBetween(Instant start, Instant end, Pageable pageable);
+    Page<GitHubActivity> findByOccurredAtGreaterThanEqualAndOccurredAtLessThan(
+            Instant startInclusive,
+            Instant endExclusive,
+            Pageable pageable
+    );
 
     Page<GitHubActivity> findByActivityType(String activityType, Pageable pageable);
 
-    Page<GitHubActivity> findByActivityTypeAndOccurredAtBetween(
+    Page<GitHubActivity> findByActivityTypeAndOccurredAtGreaterThanEqualAndOccurredAtLessThan(
             String activityType,
-            Instant start,
-            Instant end,
+            Instant startInclusive,
+            Instant endExclusive,
             Pageable pageable
     );
 

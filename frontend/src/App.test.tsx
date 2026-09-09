@@ -16,13 +16,15 @@ describe('application routing', () => {
 
     expect(screen.getByRole('link', { name: 'Lyftix dashboard' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Productivity' })).toHaveAttribute('href', '/productivity')
     expect(screen.getByRole('heading', { name: 'Lyftix Overview' })).toBeInTheDocument()
   })
 
   it.each([
     ['/workouts', 'Workout Analytics'],
-    ['/github', 'GitHub activity'],
-    ['/coding', 'Coding sessions'],
+    ['/productivity', 'Productivity'],
+    ['/github', 'GitHub Activity'],
+    ['/coding', 'Coding Sessions'],
     ['/check-ins', 'Daily check-ins'],
     ['/system', 'System metrics'],
   ])('routes %s to its page', (route, heading) => {

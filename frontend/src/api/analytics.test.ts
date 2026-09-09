@@ -1,5 +1,5 @@
 import { API_BASE_URL } from './config'
-import { getCodingAnalytics, getDailyAnalyticsSummary, getWorkoutAnalytics } from './analytics'
+import { getCheckInAnalytics, getCodingAnalytics, getDailyAnalyticsSummary, getWorkoutAnalytics } from './analytics'
 
 const range = { startDate: '2026-08-11', endDate: '2026-09-09' }
 
@@ -13,6 +13,7 @@ it.each([
   [getWorkoutAnalytics, 'workouts'],
   [getCodingAnalytics, 'coding'],
   [getDailyAnalyticsSummary, 'daily-summary'],
+  [getCheckInAnalytics, 'check-ins'],
 ])('sends the shared date range to the %s analytics endpoint', async (request, endpoint) => {
   await request(range)
   expect(fetch).toHaveBeenCalledWith(

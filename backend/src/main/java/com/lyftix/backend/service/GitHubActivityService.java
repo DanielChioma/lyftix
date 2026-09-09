@@ -75,7 +75,7 @@ public class GitHubActivityService {
 
         if (hasActivityType && hasDateRange) {
             return gitHubActivityRepository
-                    .findByActivityTypeAndOccurredAtBetween(activityType, start, end, pageable)
+                    .findByActivityTypeAndOccurredAtGreaterThanEqualAndOccurredAtLessThan(activityType, start, end, pageable)
                     .map(this::toResponse);
         }
         if (hasActivityType) {
@@ -83,7 +83,7 @@ public class GitHubActivityService {
                     .map(this::toResponse);
         }
         if (hasDateRange) {
-            return gitHubActivityRepository.findByOccurredAtBetween(start, end, pageable)
+            return gitHubActivityRepository.findByOccurredAtGreaterThanEqualAndOccurredAtLessThan(start, end, pageable)
                     .map(this::toResponse);
         }
         return gitHubActivityRepository.findAll(pageable)

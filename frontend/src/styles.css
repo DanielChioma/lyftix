@@ -61,11 +61,37 @@ p { line-height: 1.65; }
 .skeleton, .chart-skeleton { display: block; min-height: 5rem; border-radius: .75rem; background: linear-gradient(90deg, #e8ede9 25%, #f5f7f5 50%, #e8ede9 75%); background-size: 200% 100%; animation: skeleton 1.4s ease-in-out infinite; }
 .chart-skeleton { min-height: 22rem; margin-top: 1rem; }
 .charts-grid { display: grid; gap: 1rem; margin-top: 1rem; }
+.productivity-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+.productivity-charts .chart-card:last-child { grid-column: 1 / -1; }
+.comparison-card { min-width: 0; margin-top: 1rem; padding: 1.35rem; border: 1px solid #dce3dd; border-radius: 1rem; background: #fff; }
+.comparison-grid { display: grid; grid-template-columns: minmax(130px, 1.4fr) repeat(2, minmax(95px, 1fr)); gap: 0; overflow: hidden; border: 1px solid #e0e6e1; border-radius: .75rem; font-size: .85rem; }
+.comparison-grid > * { min-width: 0; padding: .7rem; border-bottom: 1px solid #e8ece9; overflow-wrap: anywhere; }
+.comparison-grid > *:nth-last-child(-n+3) { border-bottom: 0; }
+.comparison-label { background: #f3f6f3; color: #536159; font-size: .72rem; font-weight: 750; letter-spacing: .03em; }
+.comparison-grid strong { color: #183024; }
+.pattern-summary { margin: 1rem 0 .3rem; color: #31483b; font-weight: 650; }
+.method-note { margin: .3rem 0 0; color: #6a756f; font-size: .78rem; }
+.patterns-error { margin-top: 1rem; }
+.breakdown-row { display:flex; justify-content:space-between; gap:1rem; overflow-wrap:anywhere; }
+.coding-table-wrap { overflow-x:auto; }
+.coding-table { width:100%; table-layout:fixed; border-collapse:collapse; font-size:.84rem; }
+.coding-table th,.coding-table td { padding:.7rem; border-bottom:1px solid #e1e7e2; text-align:left; vertical-align:top; overflow-wrap:anywhere; }
+.coding-table th { color:#536159; font-size:.72rem; text-transform:uppercase; }
+.coding-notes { overflow-wrap:anywhere; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.coding-cards { display:none; gap:.75rem; }
+.coding-breakdowns { margin-top:1rem; }
+.coding-cards article { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:.75rem; padding:1rem; border:1px solid #e0e6e1; border-radius:.75rem; overflow-wrap:anywhere; }
 .chart-card { min-width: 0; padding: 1.35rem 1rem 1rem; border: 1px solid #dce3dd; border-radius: 1rem; background: #fff; }
 .chart-heading { padding: 0 .35rem .75rem; }
 .chart-container { width: 100%; height: 300px; }
 .chart-card .empty-state { margin: .75rem 0 0; }
 .workout-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+.github-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+.github-repositories { grid-column: 1 / -1; }
+.ranked-list { display: grid; gap: .4rem; margin: .8rem .3rem 0; padding: 0; list-style: none; }
+.ranked-list li { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-bottom: 1px solid #edf0ed; }
+.ranked-list span { min-width: 0; overflow-wrap: anywhere; }
+.ranked-list strong { flex: 0 0 auto; color: #1d5d3c; }
 .history-section { margin-top: 1rem; padding: 1.35rem; border: 1px solid #dce3dd; border-radius: 1rem; background: #fff; }
 .section-heading { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .section-heading h2 { margin: 0; font-size: 1rem; }
@@ -80,6 +106,13 @@ p { line-height: 1.65; }
 .workout-table td { padding: .85rem .7rem; border-bottom: 1px solid #edf0ed; }
 .workout-table tbody tr:last-child td { border-bottom: 0; }
 .workout-cards { display: none; }
+.github-table-wrap { overflow-x: auto; }
+.github-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: .88rem; }
+.github-table th { padding: .7rem; border-bottom: 1px solid #ccd6cf; color: #536159; text-align: left; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; }
+.github-table td { padding: .85rem .7rem; border-bottom: 1px solid #edf0ed; vertical-align: top; }
+.github-table th:nth-child(1) { width: 20%; }.github-table th:nth-child(2) { width: 19%; }.github-table th:nth-child(3) { width: 24%; }
+.wrap-value { overflow-wrap: anywhere; word-break: break-word; }
+.github-cards { display: none; }
 .pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.1rem; }
 .pagination span { color: #5e6b63; font-size: .82rem; font-weight: 700; }
 .pagination button { min-height: 2.35rem; padding: .45rem .8rem; border: 1px solid #b8c6bc; border-radius: .5rem; background: #fff; color: #1d5d3c; font-weight: 750; cursor: pointer; }
@@ -104,14 +137,31 @@ p { line-height: 1.65; }
   .range-controls label { flex: 1 1 135px; }
   .chart-container { height: 260px; }
   .workout-charts { grid-template-columns: 1fr; }
+  .github-charts { grid-template-columns: 1fr; }
+  .github-repositories { grid-column: auto; }
+  .productivity-charts { grid-template-columns: 1fr; }
+  .productivity-charts .chart-card:last-child { grid-column: auto; }
+  .comparison-card { padding: 1rem; }
+  .comparison-grid { grid-template-columns: minmax(100px, 1.2fr) repeat(2, minmax(80px, 1fr)); font-size: .78rem; }
+  .comparison-grid > * { padding: .55rem .4rem; }
   .workout-table-wrap { display: none; }
+  .github-table-wrap { display: none; }
   .workout-cards { display: grid; gap: .75rem; }
+  .github-cards { display: grid; gap: .75rem; }
   .workout-cards article { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; padding: 1rem; border: 1px solid #e0e6e1; border-radius: .75rem; background: #fafbf9; }
+  .github-cards article { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; padding: 1rem; border: 1px solid #e0e6e1; border-radius: .75rem; background: #fafbf9; }
   .workout-cards [data-label] { min-width: 0; overflow-wrap: anywhere; }
+  .github-cards [data-label] { min-width: 0; overflow-wrap: anywhere; }
+  .github-cards [data-label="Title"] { grid-column: 1 / -1; }
   .workout-cards [data-label]::before { display: block; margin-bottom: .15rem; color: #6a756f; content: attr(data-label); font-size: .68rem; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+  .github-cards [data-label]::before { display: block; margin-bottom: .15rem; color: #6a756f; content: attr(data-label); font-size: .68rem; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
   .history-controls { justify-content: stretch; }
   .history-controls label { flex: 1 1 130px; }
   .pagination { justify-content: space-between; gap: .5rem; }
+  .coding-table-wrap { display:none; }
+  .coding-cards { display:grid; }
+  .coding-cards article { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .coding-cards article p { grid-column:1/-1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

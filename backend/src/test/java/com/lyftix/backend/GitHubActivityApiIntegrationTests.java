@@ -98,6 +98,22 @@ class GitHubActivityApiIntegrationTests extends PostgreSqlIntegrationTest {
     }
 
     @Test
+    void usesStartInclusiveEndExclusiveOccurredAtBoundariesAtPostgresPrecision() throws Exception {
+        createActivity("PushEvent", "start-midnight", "2026-09-01T00:00:00Z");
+        createActivity("PushEvent", "late-end-date", "2026-09-02T23:59:59.999999Z");
+        createActivity("PushEvent", "following-midnight", "2026-09-03T00:00:00Z");
+
+        mockMvc.perform(get("/api/github-activities/filter")
+                        .param("start", "2026-09-01T00:00:00Z")
+                        .param("end", "2026-09-03T00:00:00Z")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[*].externalId")
+                        .value(org.hamcrest.Matchers.containsInAnyOrder("start-midnight", "late-end-date")));
+    }
+
+    @Test
     void filtersByActivityType() throws Exception {
         createActivity("PushEvent", "push-1", "2026-09-01T12:00:00Z");
         createActivity("IssueOpened", "issue-1", "2026-09-02T12:00:00Z");

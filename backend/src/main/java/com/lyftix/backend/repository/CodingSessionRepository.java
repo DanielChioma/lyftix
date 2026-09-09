@@ -17,8 +17,8 @@ public interface CodingSessionRepository extends JpaRepository<CodingSession, Lo
             SELECT session FROM CodingSession session
             WHERE (:projectName IS NULL OR session.projectName = :projectName)
               AND (:language IS NULL OR session.language = :language)
-              AND session.startedAt >= COALESCE(:start, session.startedAt)
-              AND session.startedAt <= COALESCE(:end, session.startedAt)
+              AND (CAST(:start AS Instant) IS NULL OR session.startedAt >= :start)
+              AND (CAST(:end AS Instant) IS NULL OR session.startedAt < :end)
             """)
     Page<CodingSession> findByFilters(
             @Param("projectName") String projectName,
