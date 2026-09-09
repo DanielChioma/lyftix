@@ -26,7 +26,7 @@ describe('application routing', () => {
     ['/github', 'GitHub Activity'],
     ['/coding', 'Coding Sessions'],
     ['/check-ins', 'Daily Check-ins'],
-    ['/system', 'System metrics'],
+    ['/system', 'System Metrics'],
   ])('routes %s to its page', (route, heading) => {
     renderWithProviders(<App />, route)
     expect(screen.getByRole('heading', { name: heading, level: 1 })).toBeInTheDocument()

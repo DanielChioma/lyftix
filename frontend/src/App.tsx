@@ -1,13 +1,13 @@
 import { Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { DashboardPage } from './pages/DashboardPage'
-import { DomainPage } from './pages/DomainPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { WorkoutPage } from './pages/WorkoutPage'
 import { ProductivityPage } from './pages/ProductivityPage'
 import { GitHubPage } from './pages/GitHubPage'
 import { CodingPage } from './pages/CodingPage'
 import { CheckInsPage } from './pages/CheckInsPage'
+import { SystemMetricsPage } from './pages/SystemMetricsPage'
 
 export function App() {
   return (
@@ -19,7 +19,7 @@ export function App() {
         <Route path="github" element={<GitHubPage />} />
         <Route path="coding" element={<CodingPage />} />
         <Route path="check-ins" element={<CheckInsPage />} />
-        <Route path="system" element={<DomainPage title="System metrics" description="Inspect the operational signals collected by Lyftix." />} />
+        <Route path="system" element={<SystemMetricsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
