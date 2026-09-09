@@ -74,14 +74,14 @@ public class WorkoutMetricService {
     }
 
     public Page<WorkoutMetricResponse> getWorkoutMetricsByDateRange(
-            Instant start,
-            Instant end,
+            Instant startInclusive,
+            Instant endExclusive,
             int page,
             int size,
             String sortBy
     ) {
 
-        if (!start.isBefore(end)) {
+        if (!startInclusive.isBefore(endExclusive)) {
             throw new InvalidWorkoutTimeException(
                     "start must be before end"
             );
@@ -94,7 +94,11 @@ public class WorkoutMetricService {
         );
 
         return workoutMetricRepository
-                .findByStartedAtBetween(start, end, pageable)
+                .findByStartedAtGreaterThanEqualAndStartedAtLessThan(
+                        startInclusive,
+                        endExclusive,
+                        pageable
+                )
                 .map(this::toResponse);
     }
 

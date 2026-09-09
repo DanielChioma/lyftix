@@ -100,18 +100,19 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
     }
 
     @Test
-    void filtersWorkoutsByStartedAtRange() throws Exception {
-        createWorkout("Before", "2026-08-31T08:00:00Z", "2026-08-31T09:00:00Z");
-        createWorkout("Inside", "2026-09-02T08:00:00Z", "2026-09-02T09:00:00Z");
-        createWorkout("After", "2026-09-05T08:00:00Z", "2026-09-05T09:00:00Z");
+    void filtersWithStartInclusiveAndEndExclusiveBoundaries() throws Exception {
+        createWorkout("Start midnight", "2026-09-01T00:00:00Z", "2026-09-01T00:30:00Z");
+        createWorkout("Late night", "2026-09-01T23:59:59.999999Z", "2026-09-02T00:30:00Z");
+        createWorkout("Following midnight", "2026-09-02T00:00:00Z", "2026-09-02T01:00:00Z");
 
         mockMvc.perform(get("/api/workouts/filter")
                         .param("start", "2026-09-01T00:00:00Z")
-                        .param("end", "2026-09-04T00:00:00Z"))
+                        .param("end", "2026-09-02T00:00:00Z"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(1))
-                .andExpect(jsonPath("$.content[0].workoutType").value("Inside"))
-                .andExpect(jsonPath("$.totalElements").value(1));
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].workoutType").value("Late night"))
+                .andExpect(jsonPath("$.content[1].workoutType").value("Start midnight"))
+                .andExpect(jsonPath("$.totalElements").value(2));
     }
 
     @Test

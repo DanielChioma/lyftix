@@ -13,9 +13,9 @@ import java.util.List;
 
 public interface WorkoutMetricRepository extends JpaRepository<WorkoutMetric, Long> {
 
-    Page<WorkoutMetric> findByStartedAtBetween(
-            Instant start,
-            Instant end,
+    Page<WorkoutMetric> findByStartedAtGreaterThanEqualAndStartedAtLessThan(
+            Instant startInclusive,
+            Instant endExclusive,
             Pageable pageable
     );
 

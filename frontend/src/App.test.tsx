@@ -20,7 +20,7 @@ describe('application routing', () => {
   })
 
   it.each([
-    ['/workouts', 'Workouts'],
+    ['/workouts', 'Workout Analytics'],
     ['/github', 'GitHub activity'],
     ['/coding', 'Coding sessions'],
     ['/check-ins', 'Daily check-ins'],

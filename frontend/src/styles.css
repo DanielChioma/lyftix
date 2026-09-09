@@ -65,6 +65,26 @@ p { line-height: 1.65; }
 .chart-heading { padding: 0 .35rem .75rem; }
 .chart-container { width: 100%; height: 300px; }
 .chart-card .empty-state { margin: .75rem 0 0; }
+.workout-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+.history-section { margin-top: 1rem; padding: 1.35rem; border: 1px solid #dce3dd; border-radius: 1rem; background: #fff; }
+.section-heading { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.section-heading h2 { margin: 0; font-size: 1rem; }
+.section-heading p { margin: .25rem 0 0; color: #6a756f; font-size: .85rem; }
+.section-heading > span { color: #257347; font-size: .82rem; font-weight: 750; }
+.history-controls { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem; margin-bottom: 1rem; }
+.history-controls label { display: grid; gap: .3rem; color: #536159; font-size: .75rem; font-weight: 700; }
+.history-controls select { min-height: 2.4rem; padding: .5rem .7rem; border: 1px solid #bdc9c0; border-radius: .5rem; background: #fff; color: #1f2933; font: inherit; }
+.workout-table-wrap { overflow-x: auto; }
+.workout-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.workout-table th { padding: .7rem; border-bottom: 1px solid #ccd6cf; color: #536159; text-align: left; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; }
+.workout-table td { padding: .85rem .7rem; border-bottom: 1px solid #edf0ed; }
+.workout-table tbody tr:last-child td { border-bottom: 0; }
+.workout-cards { display: none; }
+.pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.1rem; }
+.pagination span { color: #5e6b63; font-size: .82rem; font-weight: 700; }
+.pagination button { min-height: 2.35rem; padding: .45rem .8rem; border: 1px solid #b8c6bc; border-radius: .5rem; background: #fff; color: #1d5d3c; font-weight: 750; cursor: pointer; }
+.pagination button:disabled { color: #9ca69f; cursor: not-allowed; }
+.history-skeleton { min-height: 16rem; border-radius: .75rem; background: linear-gradient(90deg, #e8ede9 25%, #f5f7f5 50%, #e8ede9 75%); background-size: 200% 100%; animation: skeleton 1.4s ease-in-out infinite; }
 @keyframes skeleton { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 
 :focus-visible { outline: 3px solid #edb44f; outline-offset: 3px; }
@@ -83,6 +103,15 @@ p { line-height: 1.65; }
   .range-controls, .custom-range { width: 100%; }
   .range-controls label { flex: 1 1 135px; }
   .chart-container { height: 260px; }
+  .workout-charts { grid-template-columns: 1fr; }
+  .workout-table-wrap { display: none; }
+  .workout-cards { display: grid; gap: .75rem; }
+  .workout-cards article { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; padding: 1rem; border: 1px solid #e0e6e1; border-radius: .75rem; background: #fafbf9; }
+  .workout-cards [data-label] { min-width: 0; overflow-wrap: anywhere; }
+  .workout-cards [data-label]::before { display: block; margin-bottom: .15rem; color: #6a756f; content: attr(data-label); font-size: .68rem; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+  .history-controls { justify-content: stretch; }
+  .history-controls label { flex: 1 1 130px; }
+  .pagination { justify-content: space-between; gap: .5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

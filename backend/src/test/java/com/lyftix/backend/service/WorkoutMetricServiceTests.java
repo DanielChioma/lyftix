@@ -74,7 +74,7 @@ class WorkoutMetricServiceTests {
 
     @Test
     void retrievesWorkoutsForValidDateFilterRange() {
-        when(workoutMetricRepository.findByStartedAtBetween(any(), any(), any()))
+        when(workoutMetricRepository.findByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any(), any()))
                 .thenReturn(Page.empty());
 
         Page<WorkoutMetricResponse> response = workoutMetricService.getWorkoutMetricsByDateRange(
@@ -82,7 +82,7 @@ class WorkoutMetricServiceTests {
         );
 
         assertThat(response).isEmpty();
-        verify(workoutMetricRepository).findByStartedAtBetween(any(), any(), any());
+        verify(workoutMetricRepository).findByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any(), any());
     }
 
     @Test
@@ -92,7 +92,7 @@ class WorkoutMetricServiceTests {
         ))
                 .isInstanceOf(InvalidWorkoutTimeException.class)
                 .hasMessage("start must be before end");
-        verify(workoutMetricRepository, never()).findByStartedAtBetween(any(), any(), any());
+        verify(workoutMetricRepository, never()).findByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any(), any());
     }
 
     @Test
@@ -102,7 +102,7 @@ class WorkoutMetricServiceTests {
         ))
                 .isInstanceOf(InvalidWorkoutTimeException.class)
                 .hasMessage("start must be before end");
-        verify(workoutMetricRepository, never()).findByStartedAtBetween(any(), any(), any());
+        verify(workoutMetricRepository, never()).findByStartedAtGreaterThanEqualAndStartedAtLessThan(any(), any(), any());
     }
 
     @Test

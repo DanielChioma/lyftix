@@ -3,6 +3,10 @@ import type { CheckInAnalyticsResponse, CodingAnalyticsResponse, DailyAnalyticsS
 
 export interface AnalyticsDateRange { startDate: string; endDate: string }
 
+export const analyticsQueryKey = (type: string, range: AnalyticsDateRange) => [
+  'analytics', type, range.startDate, range.endDate,
+] as const
+
 function analyticsPath(endpoint: string, range: AnalyticsDateRange) {
   const params = new URLSearchParams({ startDate: range.startDate, endDate: range.endDate })
   return `/api/analytics/${endpoint}?${params.toString()}`

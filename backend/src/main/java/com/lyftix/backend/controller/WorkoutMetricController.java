@@ -79,7 +79,7 @@ public class WorkoutMetricController {
         return workoutMetricService.getWorkoutMetrics(page, size, sortBy);
     }
 
-    @Operation(summary = "Filter workout metrics by date", description = "Returns a page of workout metrics whose startedAt is within the requested range")
+    @Operation(summary = "Filter workout metrics by date", description = "Returns a page of workout metrics whose startedAt is within the start-inclusive, end-exclusive range")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Filtered workout metric page returned", useReturnTypeSchema = true),
             @ApiResponse(
@@ -90,9 +90,9 @@ public class WorkoutMetricController {
     })
     @GetMapping("/filter")
     public Page<WorkoutMetricResponse> getWorkoutMetricsByDateRange(
-            @Parameter(description = "Inclusive lower startedAt boundary in ISO-8601 format", example = "2026-09-01T00:00:00Z")
+            @Parameter(description = "Inclusive startedAt boundary in ISO-8601 format", example = "2026-09-01T00:00:00Z")
             @RequestParam Instant start,
-            @Parameter(description = "Inclusive upper startedAt boundary in ISO-8601 format; must be after start", example = "2026-09-30T23:59:59Z")
+            @Parameter(description = "Exclusive startedAt boundary in ISO-8601 format; must be after start", example = "2026-10-01T00:00:00Z")
             @RequestParam Instant end,
             @Parameter(description = "Zero-based page index", example = "0")
             @RequestParam(defaultValue = "0") int page,
