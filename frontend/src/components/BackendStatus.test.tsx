@@ -15,7 +15,7 @@ it('shows a checking state while health is loading', () => {
 it('shows connected when the health endpoint succeeds', async () => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('healthy', { status: 200 })))
   renderWithProviders(<BackendStatus />)
-  expect(await screen.findByText('Backend connected')).toBeInTheDocument()
+  expect(await screen.findByText('Connected')).toBeInTheDocument()
 })
 
 it('shows unavailable and the request id when health fails', async () => {

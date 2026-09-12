@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { analyticsQueryKey, getWorkoutAnalytics, type AnalyticsDateRange } from '../api/analytics'
 import { getWorkoutHistory, workoutHistoryQueryKey } from '../api/workouts'
@@ -9,6 +9,7 @@ import { ApiErrorMessage } from '../components/ApiErrorMessage'
 import { DateRangeSelector } from '../components/DateRangeSelector'
 import { KpiCard } from '../components/KpiCard'
 import { WorkoutHistory } from '../components/WorkoutHistory'
+import { CreateWorkoutForm } from '../components/CreateWorkoutForm'
 import { dateRangeFromSearchParams, type DateRangePreset } from '../utils/dateRange'
 import { formatAverage, formatDuration, formatNumber } from '../utils/format'
 
@@ -22,6 +23,8 @@ function integerParameter(value: string | null, fallback: number) {
 }
 
 export function WorkoutPage() {
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [creationMessage, setCreationMessage] = useState('')
   const [searchParams, setSearchParams] = useSearchParams()
   const { preset, range } = dateRangeFromSearchParams(searchParams)
   const page = integerParameter(searchParams.get('page'), 0)
@@ -47,8 +50,10 @@ export function WorkoutPage() {
   }
 
   return <section aria-labelledby="workout-page-title">
-    <p className="eyebrow">Training analytics</p><h1 id="workout-page-title">Workout Analytics</h1>
+    <div className="page-title-row"><div><p className="eyebrow">Training analytics</p><h1 id="workout-page-title">Workout Analytics</h1></div><button className="primary-button" type="button" onClick={() => { setCreationMessage(''); setShowCreateForm(true) }} aria-expanded={showCreateForm}>Add Workout</button></div>
     <p className="lede">Explore workout volume, effort, calories, and recent history.</p>
+    <p className="success-message" role="status">{creationMessage}</p>
+    {showCreateForm && <CreateWorkoutForm onClose={() => setShowCreateForm(false)} onCreated={() => setCreationMessage('Workout saved.')} />}
     <DateRangeSelector key={`${preset}-${range.startDate}-${range.endDate}`} preset={preset} range={range} onPresetChange={setRange} onCustomRangeChange={setCustomRange} />
 
     <AnalyticsSection title="Workout summary" isPending={analytics.isPending} error={analytics.error}>

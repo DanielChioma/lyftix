@@ -110,6 +110,8 @@ nav a.active { color: var(--shell); background: var(--shell-accent); }
 .theme-control { display: grid; gap: .35rem; color: var(--shell-text); font-size: .75rem; font-weight: 700; }
 .theme-control select { width: 100%; min-height: 2.5rem; padding: .5rem .65rem; border: 1px solid var(--shell-control-border); border-radius: .5rem; background: var(--shell-control-bg); color: var(--shell-control-text); font: inherit; }
 .content { width: min(1180px, 100%); padding: clamp(2rem, 6vw, 5.5rem); }
+.page-title-row { display:flex; align-items:start; justify-content:space-between; gap:1.5rem; }
+.page-title-row > .primary-button { flex:0 0 auto; margin-top:.4rem; }
 h1 { max-width: 820px; margin: .4rem 0 1rem; color: var(--heading); font-size: clamp(2.5rem, 6vw, 5rem); line-height: .98; letter-spacing: -.055em; }
 h2 { margin: 0; color: var(--heading-secondary); font-size: 1rem; }
 p { line-height: 1.65; }
@@ -132,6 +134,17 @@ p { line-height: 1.65; }
 .api-error p { margin: 0; }
 .api-error ul { margin: .35rem 0; padding-left: 1.1rem; }
 .correlation-id code { overflow-wrap: anywhere; }
+.success-message { min-height:1.5rem; margin:.5rem 0; color:var(--accent-text); font-weight:700; }
+.create-workout-panel { margin:2rem 0; padding:1.35rem; border:1px solid var(--border); border-radius:1rem; background:var(--surface); box-shadow:0 12px 35px var(--shadow); }
+.create-workout-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.workout-field { min-width:0; display:grid; align-content:start; gap:.35rem; color:var(--label); font-size:.78rem; font-weight:750; }
+.workout-field select,.workout-field input { width:100%; min-width:0; min-height:2.65rem; padding:.55rem .7rem; border:1px solid var(--border-control); border-radius:.5rem; background:var(--surface-elevated); color:var(--text); font:inherit; }
+.workout-field small { color:var(--text-soft); font-weight:500; }
+.workout-field .field-error { color:var(--error); font-weight:650; }
+.create-workout-error,.form-actions { grid-column:1/-1; }
+.form-actions { display:flex; flex-wrap:wrap; gap:.75rem; }
+.secondary-button { min-height:2.65rem; padding:.6rem .9rem; border:1px solid var(--border-control); border-radius:.55rem; background:var(--surface-elevated); color:var(--text); font:inherit; font-weight:700; cursor:pointer; }
+.secondary-button:disabled { opacity:.65; cursor:wait; }
 .login-page, .session-page { min-height: 100vh; display: grid; place-items: center; padding: clamp(1rem, 5vw, 3rem); }
 .login-card, .session-card { width: min(100%, 440px); padding: clamp(1.25rem, 5vw, 2.25rem); border: 1px solid var(--border); border-radius: 1rem; background: var(--surface); box-shadow: 0 18px 50px var(--shadow); }
 .login-brand { display: flex; align-items: center; gap: 1rem; }
@@ -151,6 +164,20 @@ p { line-height: 1.65; }
 .session-note { color: var(--text-muted); }
 .session-card > .primary-button { margin-top: 1rem; }
 .date-range { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin: 2.5rem 0 3rem; padding: 1.1rem 1.25rem; border: 1px solid var(--border); border-radius: 1rem; background: var(--surface); }
+.page-title-row { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; }
+.page-title-row h1 { margin-bottom:0; }
+.page-title-row > .primary-button { flex:0 0 auto; }
+.success-message { min-height:1.5rem; margin:.75rem 0 0; color:var(--accent-text); font-weight:700; }
+.create-workout-panel { margin:1.5rem 0; padding:1.35rem; border:1px solid var(--border); border-radius:1rem; background:var(--surface); box-shadow:0 12px 35px var(--shadow); }
+.create-workout-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.workout-field { min-width:0; display:grid; align-content:start; gap:.35rem; color:var(--label); font-size:.78rem; font-weight:750; }
+.workout-field select,.workout-field input { width:100%; min-height:2.65rem; padding:.55rem .7rem; border:1px solid var(--border-control); border-radius:.5rem; background:var(--surface-elevated); color:var(--text); font:inherit; }
+.workout-field small { color:var(--text-soft); font-weight:500; }
+.workout-field .field-error { color:var(--error); }
+.create-workout-error,.form-actions { grid-column:1/-1; }
+.form-actions { display:flex; flex-wrap:wrap; gap:.75rem; }
+.secondary-button { min-height:2.5rem; padding:.55rem .9rem; border:1px solid var(--border-control); border-radius:.5rem; background:var(--surface-elevated); color:var(--text); font:inherit; font-weight:700; cursor:pointer; }
+.secondary-button:disabled { color:var(--disabled); cursor:wait; }
 .date-range h2, .analytics-section > h2, .chart-heading h2 { font-size: 1rem; }
 .date-range p, .chart-heading p { margin: .25rem 0 0; color: var(--text-soft); font-size: .85rem; }
 .range-controls, .custom-range { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; }
@@ -264,6 +291,9 @@ p { line-height: 1.65; }
   nav a { white-space: nowrap; }
   .content { padding: 2.5rem 1.2rem; }
   h1 { font-size: clamp(2.4rem, 14vw, 4rem); }
+  .page-title-row { align-items:stretch; flex-direction:column; }
+  .page-title-row > .primary-button { align-self:flex-start; }
+  .create-workout-form { grid-template-columns:1fr; }
   .analytics-sections { grid-template-columns: 1fr; }
   .date-range, .range-controls, .custom-range { align-items: stretch; }
   .range-controls, .custom-range { width: 100%; }

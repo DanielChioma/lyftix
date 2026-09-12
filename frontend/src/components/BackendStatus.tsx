@@ -23,5 +23,5 @@ export function BackendStatus() {
     )
   }
 
-  return <span className="status status-connected">Backend connected</span>
+  return <span className="status status-connected">Connected</span>
 }

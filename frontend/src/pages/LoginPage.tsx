@@ -4,7 +4,6 @@ import { ApiClientError } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import { ApiErrorMessage } from '../components/ApiErrorMessage'
 import { BackendStatus } from '../components/BackendStatus'
-import { ThemeControl } from '../components/ThemeControl'
 import { getSafeDestination } from '../auth/redirect'
 
 export function LoginPage() {
@@ -95,7 +94,7 @@ export function LoginPage() {
         )}
 
         <div className="login-controls">
-          <ThemeControl />
+          {/*<ThemeControl />*/}
           <BackendStatus />
         </div>
       </section>

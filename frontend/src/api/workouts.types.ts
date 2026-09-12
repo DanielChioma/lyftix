@@ -9,6 +9,14 @@ export interface WorkoutMetricResponse {
   updatedAt: string
 }
 
+export interface CreateWorkoutMetricRequest {
+  workoutType: string
+  intensity: number
+  caloriesBurned: number
+  startedAt: string
+  endedAt: string
+}
+
 export interface PageResponse<T> {
   content: T[]
   totalElements: number

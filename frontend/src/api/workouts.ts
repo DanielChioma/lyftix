@@ -1,5 +1,5 @@
 import { apiRequest } from './client'
-import type { PageResponse, WorkoutHistoryParameters, WorkoutMetricResponse } from './workouts.types'
+import type { CreateWorkoutMetricRequest, PageResponse, WorkoutHistoryParameters, WorkoutMetricResponse } from './workouts.types'
 import { startOfFollowingUtcDay, startOfUtcDay } from '../utils/dateRange'
 
 export async function getWorkoutHistory(parameters: WorkoutHistoryParameters) {
@@ -11,6 +11,14 @@ export async function getWorkoutHistory(parameters: WorkoutHistoryParameters) {
     sortBy: parameters.sortBy,
   })
   return (await apiRequest<PageResponse<WorkoutMetricResponse>>(`/api/workouts/filter?${query.toString()}`)).data
+}
+
+export async function createWorkout(request: CreateWorkoutMetricRequest) {
+  return (await apiRequest<WorkoutMetricResponse>('/api/workouts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  })).data
 }
 
 export function workoutHistoryQueryKey(parameters: WorkoutHistoryParameters) {
