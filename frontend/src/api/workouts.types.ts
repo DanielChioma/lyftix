@@ -2,7 +2,7 @@ export interface WorkoutMetricResponse {
   id: number
   workoutType: string
   intensity: number
-  caloriesBurned: number
+  caloriesBurned: number | null
   startedAt: string
   endedAt: string
   createdAt: string
@@ -12,7 +12,7 @@ export interface WorkoutMetricResponse {
 export interface CreateWorkoutMetricRequest {
   workoutType: string
   intensity: number
-  caloriesBurned: number
+  caloriesBurned: number | null
   startedAt: string
   endedAt: string
 }

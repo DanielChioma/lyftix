@@ -45,12 +45,36 @@ class AnalyticsApiIntegrationTests extends PostgreSqlIntegrationTest {
         mockMvc.perform(analyticsGet("/workouts", "2026-09-01", "2026-09-02"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalWorkouts").value(2))
+                .andExpect(jsonPath("$.workoutsWithCalories").value(2))
                 .andExpect(jsonPath("$.totalCaloriesBurned").value(800))
                 .andExpect(jsonPath("$.totalDurationSeconds").value(5400))
                 .andExpect(jsonPath("$.averageIntensity").value(7.0))
                 .andExpect(jsonPath("$.countsByWorkoutType[0].workoutType").value("Running"))
                 .andExpect(jsonPath("$.countsByWorkoutType[0].count").value(2))
                 .andExpect(jsonPath("$.daily.length()").value(2));
+    }
+
+    @Test
+    void aggregatesOnlyRecordedCaloriesAndDistinguishesAllNullCalories() throws Exception {
+        saveWorkout("Walking", 3, null, "2026-09-01T09:00:00Z", "2026-09-01T09:30:00Z");
+        saveWorkout("Running", 7, 0, "2026-09-02T09:00:00Z", "2026-09-02T10:00:00Z");
+        saveWorkout("Cycling", 8, 400, "2026-09-02T11:00:00Z", "2026-09-02T12:00:00Z");
+
+        mockMvc.perform(analyticsGet("/workouts", "2026-09-01", "2026-09-02"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalWorkouts").value(3))
+                .andExpect(jsonPath("$.workoutsWithCalories").value(2))
+                .andExpect(jsonPath("$.totalCaloriesBurned").value(400))
+                .andExpect(jsonPath("$.daily[0].workoutsWithCalories").value(0))
+                .andExpect(jsonPath("$.daily[0].caloriesBurned").value(0))
+                .andExpect(jsonPath("$.daily[1].workoutsWithCalories").value(2))
+                .andExpect(jsonPath("$.daily[1].caloriesBurned").value(400));
+
+        mockMvc.perform(analyticsGet("/workouts", "2026-09-01", "2026-09-01"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalWorkouts").value(1))
+                .andExpect(jsonPath("$.workoutsWithCalories").value(0))
+                .andExpect(jsonPath("$.totalCaloriesBurned").value(0));
     }
 
     @Test
@@ -266,7 +290,7 @@ class AnalyticsApiIntegrationTests extends PostgreSqlIntegrationTest {
         return get("/api/analytics" + path).param("startDate", startDate).param("endDate", endDate);
     }
 
-    private void saveWorkout(String type, int intensity, int calories, String start, String end) {
+    private void saveWorkout(String type, int intensity, Integer calories, String start, String end) {
         WorkoutMetric workout = new WorkoutMetric();
         workout.setWorkoutType(type);
         workout.setIntensity(intensity);

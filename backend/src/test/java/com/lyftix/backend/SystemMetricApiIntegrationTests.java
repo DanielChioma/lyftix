@@ -118,7 +118,7 @@ class SystemMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
         assertThat(jdbcTemplate.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank",
                 String.class
-        )).containsExactly("1", "2", "3", "4", "5", "6", "7");
+        )).containsExactly("1", "2", "3", "4", "5", "6", "7", "8");
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM pg_indexes WHERE tablename = 'system_metrics' "
                         + "AND indexname IN ('idx_system_metrics_collected_at', "

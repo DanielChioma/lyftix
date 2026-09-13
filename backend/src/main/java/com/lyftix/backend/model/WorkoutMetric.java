@@ -19,7 +19,7 @@ public class WorkoutMetric {
     @Column(nullable = false)
     private Integer intensity;
 
-    @Column(nullable = false)
+    @Column
     private Integer caloriesBurned;
 
     @Column(nullable = false)

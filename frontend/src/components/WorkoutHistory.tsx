@@ -1,13 +1,17 @@
 import type { PageResponse, WorkoutMetricResponse, WorkoutSort } from '../api/workouts.types'
 import { durationBetween, formatDateTimeDate, formatDuration, formatNumber, formatTime } from '../utils/format'
 
+function formatCalories(value: number | null) {
+  return value === null ? 'Not recorded' : formatNumber(value)
+}
+
 function WorkoutValues({ workout }: { workout: WorkoutMetricResponse }) {
   return <>
     <span data-label="Date">{formatDateTimeDate(workout.startedAt)}</span>
     <strong data-label="Type">{workout.workoutType}</strong>
     <span data-label="Start">{formatTime(workout.startedAt)}</span>
     <span data-label="Duration">{formatDuration(durationBetween(workout.startedAt, workout.endedAt))}</span>
-    <span data-label="Calories">{formatNumber(workout.caloriesBurned)}</span>
+    <span data-label="Calories">{formatCalories(workout.caloriesBurned)}</span>
     <span data-label="Intensity">{workout.intensity}/10</span>
   </>
 }
@@ -29,7 +33,7 @@ export function WorkoutHistory({ page, sortBy, onPageChange, onSizeChange, onSor
     {page.empty ? <p className="empty-state">No workouts recorded in this date range.</p> : <>
       <div className="workout-table-wrap"><table className="workout-table">
         <thead><tr><th scope="col">Date</th><th scope="col">Type</th><th scope="col">Start</th><th scope="col">Duration</th><th scope="col">Calories</th><th scope="col">Intensity</th></tr></thead>
-        <tbody>{page.content.map((workout) => <tr key={workout.id}><td>{formatDateTimeDate(workout.startedAt)}</td><td>{workout.workoutType}</td><td>{formatTime(workout.startedAt)}</td><td>{formatDuration(durationBetween(workout.startedAt, workout.endedAt))}</td><td>{formatNumber(workout.caloriesBurned)}</td><td>{workout.intensity}/10</td></tr>)}</tbody>
+        <tbody>{page.content.map((workout) => <tr key={workout.id}><td>{formatDateTimeDate(workout.startedAt)}</td><td>{workout.workoutType}</td><td>{formatTime(workout.startedAt)}</td><td>{formatDuration(durationBetween(workout.startedAt, workout.endedAt))}</td><td>{formatCalories(workout.caloriesBurned)}</td><td>{workout.intensity}/10</td></tr>)}</tbody>
       </table></div>
       <div className="workout-cards">{page.content.map((workout) => <article key={workout.id} aria-label={`${workout.workoutType} workout`}><WorkoutValues workout={workout} /></article>)}</div>
     </>}

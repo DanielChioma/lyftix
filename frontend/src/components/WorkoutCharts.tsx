@@ -4,11 +4,11 @@ import type { WorkoutAnalyticsResponse } from '../api/analytics.types'
 import { formatChartDate } from '../utils/format'
 import { workoutTrendData, workoutTypeData } from '../utils/workoutChartData'
 
-function ChartCard({ title, description, empty, children }: { title: string; description: string; empty: boolean; children: ReactNode }) {
+function ChartCard({ title, description, empty, emptyMessage = 'No workout data recorded in this range.', children }: { title: string; description: string; empty: boolean; emptyMessage?: string; children: ReactNode }) {
   const id = `${title.toLowerCase().replaceAll(' ', '-')}-title`
   return <section className="chart-card" aria-labelledby={id}>
     <div className="chart-heading"><h2 id={id}>{title}</h2><p>{description}</p></div>
-    {empty ? <p className="empty-state">No workout data recorded in this range.</p> : children}
+    {empty ? <p className="empty-state">{emptyMessage}</p> : children}
   </section>
 }
 
@@ -30,11 +30,11 @@ export function WorkoutCharts({ analytics }: { analytics: WorkoutAnalyticsRespon
         <Line dataKey="durationMinutes" name="Workout minutes" stroke="var(--chart-blue)" strokeWidth={2} />
       </LineChart></ResponsiveContainer></div>
     </ChartCard>
-    <ChartCard title="Calories burned" description="Estimated calories burned by day." empty={trend.length === 0}>
+    <ChartCard title="Calories burned" description="Estimated calories burned by day." empty={analytics.workoutsWithCalories === 0} emptyMessage="No calorie data recorded in this range.">
       <div className="chart-container"><ResponsiveContainer width="100%" height="100%"><LineChart data={trend} accessibilityLayer>
         <CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="date" tickFormatter={formatChartDate} /><YAxis />
         <Tooltip labelFormatter={(value) => formatChartDate(String(value))} /><Legend />
-        <Line dataKey="caloriesBurned" name="Calories" stroke="var(--chart-orange)" strokeDasharray="6 3" strokeWidth={2} />
+        <Line dataKey="caloriesBurned" name="Calories" connectNulls={false} stroke="var(--chart-orange)" strokeDasharray="6 3" strokeWidth={2} />
       </LineChart></ResponsiveContainer></div>
     </ChartCard>
     <ChartCard title="Workout types" description="Workout count grouped by recorded type." empty={types.length === 0}>

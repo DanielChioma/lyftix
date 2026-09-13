@@ -40,8 +40,7 @@ function validate(values: FormValues): FormErrors {
   if (!values.intensity) errors.intensity = 'Enter an intensity from 1 to 10.'
   else if (!Number.isInteger(intensity) || intensity < 1 || intensity > 10) errors.intensity = 'Intensity must be a whole number from 1 to 10.'
   const calories = Number(values.caloriesBurned)
-  if (!values.caloriesBurned) errors.caloriesBurned = 'Enter estimated calories burned.'
-  else if (!Number.isInteger(calories) || calories < 0) errors.caloriesBurned = 'Calories must be a whole number of 0 or more.'
+  if (values.caloriesBurned && (!Number.isInteger(calories) || calories < 0)) errors.caloriesBurned = 'Calories must be a whole number of 0 or more.'
   return errors
 }
 
@@ -83,7 +82,7 @@ export function CreateWorkoutForm({ onClose, onCreated }: { onClose: () => void;
       startedAt: localDateTimeToInstant(values.startedAt),
       endedAt: localDateTimeToInstant(values.endedAt),
       intensity: Number(values.intensity),
-      caloriesBurned: Number(values.caloriesBurned),
+      caloriesBurned: values.caloriesBurned === '' ? null : Number(values.caloriesBurned),
     }
     submittingRef.current = true
     void mutation.mutateAsync(request).catch(() => undefined).finally(() => {
@@ -113,8 +112,8 @@ export function CreateWorkoutForm({ onClose, onCreated }: { onClose: () => void;
         <FormField label="Intensity" hint="1 (very light) to 10 (maximum effort)" error={errors.intensity}>
           <input type="number" min="1" max="10" step="1" inputMode="numeric" value={values.intensity} onChange={(event) => update('intensity', event.target.value)} aria-invalid={Boolean(errors.intensity)} required />
         </FormField>
-        <FormField label="Calories burned" hint="Required by the current API." error={errors.caloriesBurned}>
-          <input type="number" min="0" step="1" inputMode="numeric" value={values.caloriesBurned} onChange={(event) => update('caloriesBurned', event.target.value)} aria-invalid={Boolean(errors.caloriesBurned)} required />
+        <FormField label="Calories burned (optional)" hint="Leave blank if calories were not recorded." error={errors.caloriesBurned}>
+          <input type="number" min="0" step="1" inputMode="numeric" value={values.caloriesBurned} onChange={(event) => update('caloriesBurned', event.target.value)} aria-invalid={Boolean(errors.caloriesBurned)} />
         </FormField>
         {mutation.error && <div className="create-workout-error"><ApiErrorMessage error={mutation.error} /></div>}
         <div className="form-actions">

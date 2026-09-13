@@ -21,6 +21,7 @@ public interface WorkoutMetricRepository extends JpaRepository<WorkoutMetric, Lo
 
     @Query(value = """
             SELECT COUNT(*) AS "totalWorkouts",
+                   COUNT(calories_burned) AS "workoutsWithCalories",
                    COALESCE(SUM(calories_burned), 0)::bigint AS "totalCaloriesBurned",
                    COALESCE(SUM(EXTRACT(EPOCH FROM ended_at - started_at)), 0)::bigint AS "totalDurationSeconds",
                    AVG(intensity)::double precision AS "averageIntensity"
@@ -45,6 +46,7 @@ public interface WorkoutMetricRepository extends JpaRepository<WorkoutMetric, Lo
 
     @Query(value = """
             SELECT (started_at AT TIME ZONE 'UTC')::date AS date, COUNT(*) AS count,
+                   COUNT(calories_burned) AS "workoutsWithCalories",
                    COALESCE(SUM(calories_burned), 0)::bigint AS "caloriesBurned",
                    COALESCE(SUM(EXTRACT(EPOCH FROM ended_at - started_at)), 0)::bigint AS "durationSeconds"
             FROM workout_metrics
@@ -74,6 +76,7 @@ public interface WorkoutMetricRepository extends JpaRepository<WorkoutMetric, Lo
 
     interface WorkoutAggregate {
         Long getTotalWorkouts();
+        Long getWorkoutsWithCalories();
         Long getTotalCaloriesBurned();
         Long getTotalDurationSeconds();
         Double getAverageIntensity();
@@ -87,6 +90,7 @@ public interface WorkoutMetricRepository extends JpaRepository<WorkoutMetric, Lo
     interface WorkoutDailyAggregate {
         LocalDate getDate();
         Long getCount();
+        Long getWorkoutsWithCalories();
         Long getCaloriesBurned();
         Long getDurationSeconds();
     }

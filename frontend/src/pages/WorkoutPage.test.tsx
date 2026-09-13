@@ -17,10 +17,10 @@ const workout = {
   createdAt: '2026-09-08T09:30:01Z', updatedAt: '2026-09-08T09:30:01Z',
 }
 const analytics = {
-  startDate: '2026-08-11', endDate: '2026-09-09', totalWorkouts: 3, totalCaloriesBurned: 1250,
+  startDate: '2026-08-11', endDate: '2026-09-09', totalWorkouts: 3, workoutsWithCalories: 3, totalCaloriesBurned: 1250,
   totalDurationSeconds: 9000, averageIntensity: 7.5,
   countsByWorkoutType: [{ workoutType: 'Running', count: 3 }],
-  daily: [{ date: '2026-09-08', workoutCount: 3, caloriesBurned: 1250, durationSeconds: 9000 }],
+  daily: [{ date: '2026-09-08', workoutCount: 3, workoutsWithCalories: 3, caloriesBurned: 1250, durationSeconds: 9000 }],
 }
 const page = {
   content: [workout], totalElements: 11, totalPages: 2, size: 10, number: 0,
@@ -60,6 +60,22 @@ it('preserves a null average intensity as No data', async () => {
   renderWithProviders(<WorkoutPage />, '/workouts')
   expect(await screen.findByLabelText('Average intensity: No data')).toBeInTheDocument()
   expect(screen.getByText('No workouts recorded in this date range.')).toBeInTheDocument()
+})
+
+it('distinguishes unrecorded calories from a recorded zero', async () => {
+  const workouts = [
+    { ...workout, id: 43, caloriesBurned: null },
+    { ...workout, id: 44, caloriesBurned: 0 },
+  ]
+  mockRequests(
+    { ...analytics, workoutsWithCalories: 0, totalCaloriesBurned: 0, daily: [{ ...analytics.daily[0], workoutsWithCalories: 0, caloriesBurned: 0 }] },
+    { ...page, content: workouts, totalElements: 2, numberOfElements: 2 },
+  )
+  renderWithProviders(<WorkoutPage />, '/workouts')
+  expect(await screen.findByLabelText('Calories burned: Not recorded')).toBeInTheDocument()
+  expect(screen.getAllByText('Not recorded').length).toBeGreaterThan(1)
+  expect(screen.getAllByText('0').length).toBeGreaterThan(0)
+  expect(screen.getByText('No calorie data recorded in this range.')).toBeInTheDocument()
 })
 
 it('requests the custom date filter and server sort exactly', async () => {

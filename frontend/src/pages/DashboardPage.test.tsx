@@ -21,7 +21,7 @@ const dailyPoint = {
   mood: 7, energy: 8, focus: 9, stress: 2, productivity: 8, sleepMinutes: 480,
 }
 const successfulQueries = {
-  workouts: success({ totalWorkouts: 4, totalDurationSeconds: 7200, totalCaloriesBurned: 950 }),
+  workouts: success({ totalWorkouts: 4, workoutsWithCalories: 4, totalDurationSeconds: 7200, totalCaloriesBurned: 950 }),
   coding: success({ totalSessions: 6, totalDurationSeconds: 12600 }),
   github: success({ totalActivities: 12 }),
   checkIns: success({ averageEnergy: 7.25, averageFocus: 8, averageProductivity: 6.75, daily: [dailyPoint] }),
@@ -65,7 +65,7 @@ it('shows loading placeholders without replacing the page shell', () => {
 
 it('shows honest empty states and null subjective values', async () => {
   vi.mocked(useDashboardAnalytics).mockReturnValue({
-    workouts: success({ totalWorkouts: 0, totalDurationSeconds: 0, totalCaloriesBurned: 0 }),
+    workouts: success({ totalWorkouts: 0, workoutsWithCalories: 0, totalDurationSeconds: 0, totalCaloriesBurned: 0 }),
     coding: success({ totalSessions: 0, totalDurationSeconds: 0 }), github: success({ totalActivities: 0 }),
     checkIns: success({ averageEnergy: null, averageFocus: null, averageProductivity: null, daily: [] }),
     daily: success({ daily: [] }),

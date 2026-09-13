@@ -60,7 +60,7 @@ export function WorkoutPage() {
       <div className="kpi-grid">
         <KpiCard label="Total workouts" value={analytics.data?.totalWorkouts ?? 0} />
         <KpiCard label="Total duration" value={formatDuration(analytics.data?.totalDurationSeconds ?? 0)} />
-        <KpiCard label="Calories burned" value={formatNumber(analytics.data?.totalCaloriesBurned ?? 0)} />
+        <KpiCard label="Calories burned" value={analytics.data && analytics.data.workoutsWithCalories > 0 ? formatNumber(analytics.data.totalCaloriesBurned) : 'Not recorded'} />
         <KpiCard label="Average intensity" value={formatAverage(analytics.data?.averageIntensity ?? null)} />
       </div>
       {analytics.data?.totalWorkouts === 0 && <p className="section-empty">No workouts recorded.</p>}

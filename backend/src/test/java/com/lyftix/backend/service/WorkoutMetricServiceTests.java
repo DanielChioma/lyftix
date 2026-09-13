@@ -53,6 +53,18 @@ class WorkoutMetricServiceTests {
     }
 
     @Test
+    void preservesMissingCaloriesAsNull() {
+        WorkoutMetric savedWorkout = savedWorkout();
+        when(savedWorkout.getCaloriesBurned()).thenReturn(null);
+        when(workoutMetricRepository.save(any(WorkoutMetric.class))).thenReturn(savedWorkout);
+
+        WorkoutMetricResponse response = workoutMetricService.createWorkoutMetric(
+                new CreateWorkoutMetricRequest("Running", 7, null, STARTED_AT, ENDED_AT));
+
+        assertThat(response.caloriesBurned()).isNull();
+    }
+
+    @Test
     void rejectsWorkoutEndingBeforeItStarts() {
         CreateWorkoutMetricRequest request = request(STARTED_AT, STARTED_AT.minusSeconds(1));
 

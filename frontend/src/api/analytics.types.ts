@@ -1,8 +1,8 @@
 export interface DateRangeResponse { startDate: string; endDate: string }
 export interface WorkoutAnalyticsResponse extends DateRangeResponse {
-  totalWorkouts: number; totalCaloriesBurned: number; totalDurationSeconds: number; averageIntensity: number | null
+  totalWorkouts: number; workoutsWithCalories: number; totalCaloriesBurned: number; totalDurationSeconds: number; averageIntensity: number | null
   countsByWorkoutType: Array<{ workoutType: string; count: number }>
-  daily: Array<{ date: string; workoutCount: number; caloriesBurned: number; durationSeconds: number }>
+  daily: Array<{ date: string; workoutCount: number; workoutsWithCalories: number; caloriesBurned: number; durationSeconds: number }>
 }
 export interface CodingAnalyticsResponse extends DateRangeResponse {
   totalSessions: number; totalDurationSeconds: number; averageDurationSeconds: number | null

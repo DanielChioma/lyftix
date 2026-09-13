@@ -89,6 +89,7 @@ class AnalyticsServiceTests {
         WorkoutAnalyticsResponse response = service.getWorkoutAnalytics(START, END);
 
         assertThat(response.totalWorkouts()).isZero();
+        assertThat(response.workoutsWithCalories()).isZero();
         assertThat(response.totalCaloriesBurned()).isZero();
         assertThat(response.totalDurationSeconds()).isZero();
         assertThat(response.averageIntensity()).isNull();
@@ -101,6 +102,7 @@ class AnalyticsServiceTests {
         WorkoutMetricRepository.WorkoutAggregate aggregate = mock(WorkoutMetricRepository.WorkoutAggregate.class);
         WorkoutMetricRepository.NamedCount type = mock(WorkoutMetricRepository.NamedCount.class);
         when(aggregate.getTotalWorkouts()).thenReturn(2L);
+        when(aggregate.getWorkoutsWithCalories()).thenReturn(2L);
         when(aggregate.getTotalCaloriesBurned()).thenReturn(700L);
         when(aggregate.getTotalDurationSeconds()).thenReturn(5400L);
         when(aggregate.getAverageIntensity()).thenReturn(7.5);
@@ -113,6 +115,7 @@ class AnalyticsServiceTests {
         WorkoutAnalyticsResponse response = service.getWorkoutAnalytics(START, END);
 
         assertThat(response.totalDurationSeconds()).isEqualTo(5400);
+        assertThat(response.workoutsWithCalories()).isEqualTo(2);
         assertThat(response.averageIntensity()).isEqualTo(7.5);
         assertThat(response.countsByWorkoutType().getFirst().workoutType()).isEqualTo("Running");
     }

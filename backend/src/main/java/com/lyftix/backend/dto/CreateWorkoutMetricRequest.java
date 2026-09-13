@@ -21,9 +21,8 @@ public record CreateWorkoutMetricRequest(
         @Schema(description = "Workout intensity from 1 to 10", example = "7", minimum = "1", maximum = "10")
         Integer intensity,
 
-        @NotNull
         @Min(0)
-        @Schema(description = "Estimated calories burned", example = "450", minimum = "0")
+        @Schema(description = "Optional estimated calories burned; null when not recorded", example = "450", minimum = "0", nullable = true)
         Integer caloriesBurned,
 
         @NotNull

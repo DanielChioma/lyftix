@@ -12,7 +12,7 @@ public record WorkoutMetricResponse(
         String workoutType,
         @Schema(description = "Workout intensity from 1 to 10", example = "7")
         Integer intensity,
-        @Schema(description = "Estimated calories burned", example = "450")
+        @Schema(description = "Estimated calories burned; null when not recorded", example = "450", nullable = true)
         Integer caloriesBurned,
         @Schema(description = "Workout start time", example = "2026-09-01T08:00:00Z", format = "date-time")
         Instant startedAt,

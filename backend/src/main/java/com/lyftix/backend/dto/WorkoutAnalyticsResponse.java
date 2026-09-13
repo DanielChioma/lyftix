@@ -10,6 +10,9 @@ public record WorkoutAnalyticsResponse(
         LocalDate startDate,
         LocalDate endDate,
         long totalWorkouts,
+        @Schema(description = "Number of workouts with a recorded calorie value")
+        long workoutsWithCalories,
+        @Schema(description = "Sum of recorded calorie values; zero when none are recorded")
         long totalCaloriesBurned,
         @Schema(description = "Sum of derived workout durations in seconds") long totalDurationSeconds,
         Double averageIntensity,
@@ -18,6 +21,7 @@ public record WorkoutAnalyticsResponse(
 ) {
     public record CountByWorkoutType(String workoutType, long count) {}
     public record DailyWorkoutMetrics(
-            LocalDate date, long workoutCount, long caloriesBurned, long durationSeconds
+            LocalDate date, long workoutCount, long workoutsWithCalories,
+            long caloriesBurned, long durationSeconds
     ) {}
 }

@@ -54,6 +54,7 @@ public class AnalyticsService {
                 startDate,
                 endDate,
                 valueOrZero(aggregate.getTotalWorkouts()),
+                valueOrZero(aggregate.getWorkoutsWithCalories()),
                 valueOrZero(aggregate.getTotalCaloriesBurned()),
                 valueOrZero(aggregate.getTotalDurationSeconds()),
                 aggregate.getAverageIntensity(),
@@ -62,7 +63,8 @@ public class AnalyticsService {
                         .toList(),
                 workoutMetricRepository.aggregateByDay(range.startInclusive(), range.endExclusive()).stream()
                         .map(item -> new WorkoutAnalyticsResponse.DailyWorkoutMetrics(
-                                item.getDate(), item.getCount(), item.getCaloriesBurned(), item.getDurationSeconds()))
+                                item.getDate(), item.getCount(), item.getWorkoutsWithCalories(),
+                                item.getCaloriesBurned(), item.getDurationSeconds()))
                         .toList()
         );
     }

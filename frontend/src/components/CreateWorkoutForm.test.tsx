@@ -46,7 +46,7 @@ it('submits converted values, invalidates dependent data, and closes after succe
   expect(invalidate).toHaveBeenCalledWith({ queryKey: ['analytics', 'daily-summary'] })
 })
 
-it('validates required fields and the backend-required calories field without submitting', async () => {
+it('validates required fields without requiring calories', async () => {
   renderForm()
   fireEvent.change(screen.getByLabelText('Started at'), { target: { value: '' } })
   fireEvent.change(screen.getByLabelText('Ended at'), { target: { value: '' } })
@@ -56,8 +56,24 @@ it('validates required fields and the backend-required calories field without su
   expect(screen.getByText('Enter a start date and time.')).toBeInTheDocument()
   expect(screen.getByText('Enter an end date and time.')).toBeInTheDocument()
   expect(screen.getByText('Enter an intensity from 1 to 10.')).toBeInTheDocument()
-  expect(screen.getByText('Enter estimated calories burned.')).toBeInTheDocument()
   expect(createWorkout).not.toHaveBeenCalled()
+})
+
+it.each([
+  ['', null],
+  ['0', 0],
+  ['350', 350],
+])('submits calories input %s as %s', async (calories, expected) => {
+  vi.mocked(createWorkout).mockResolvedValue({
+    id: 1, workoutType: 'Cycling', intensity: 7, caloriesBurned: expected,
+    startedAt: '2026-01-15T10:30:00.000Z', endedAt: '2026-01-15T11:45:00.000Z',
+    createdAt: '2026-01-15T11:46:00Z', updatedAt: '2026-01-15T11:46:00Z',
+  })
+  renderForm()
+  fillValidForm()
+  fireEvent.change(screen.getByLabelText(/^Calories burned/), { target: { value: calories } })
+  fireEvent.click(screen.getByRole('button', { name: 'Save workout' }))
+  await waitFor(() => expect(createWorkout).toHaveBeenCalledWith(expect.objectContaining({ caloriesBurned: expected })))
 })
 
 it.each([

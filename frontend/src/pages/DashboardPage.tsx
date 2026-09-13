@@ -27,7 +27,7 @@ export function DashboardPage() {
 
     <div className="analytics-sections">
       <AnalyticsSection title="Workouts" isPending={analytics.workouts.isPending} error={analytics.workouts.error}>
-        <div className="kpi-grid"><KpiCard label="Workout count" value={analytics.workouts.data?.totalWorkouts ?? 0} /><KpiCard label="Workout duration" value={formatDuration(analytics.workouts.data?.totalDurationSeconds ?? 0)} /><KpiCard label="Calories burned" value={analytics.workouts.data?.totalCaloriesBurned ?? 0} /></div>
+        <div className="kpi-grid"><KpiCard label="Workout count" value={analytics.workouts.data?.totalWorkouts ?? 0} /><KpiCard label="Workout duration" value={formatDuration(analytics.workouts.data?.totalDurationSeconds ?? 0)} /><KpiCard label="Calories burned" value={analytics.workouts.data && analytics.workouts.data.workoutsWithCalories > 0 ? analytics.workouts.data.totalCaloriesBurned : 'Not recorded'} /></div>
         {analytics.workouts.data?.totalWorkouts === 0 && <p className="section-empty">No workouts recorded.</p>}
       </AnalyticsSection>
       <AnalyticsSection title="Coding" isPending={analytics.coding.isPending} error={analytics.coding.error}>

@@ -5,6 +5,7 @@ export function workoutTrendData(response: WorkoutAnalyticsResponse) {
     .sort((left, right) => left.date.localeCompare(right.date))
     .map((day) => ({
       ...day,
+      caloriesBurned: day.workoutsWithCalories > 0 ? day.caloriesBurned : null,
       durationMinutes: Number((day.durationSeconds / 60).toFixed(1)),
     }))
 }

@@ -59,6 +59,52 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
     }
 
     @Test
+    void createsWorkoutWithoutRecordedCalories() throws Exception {
+        mockMvc.perform(post("/api/workouts").with(csrf())
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "workoutType": "Walking",
+                                  "intensity": 3,
+                                  "startedAt": "2026-09-01T10:00:00Z",
+                                  "endedAt": "2026-09-01T10:30:00Z"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.caloriesBurned").value(org.hamcrest.Matchers.nullValue()));
+
+        assertThat(workoutMetricRepository.findAll()).singleElement()
+                .extracting(WorkoutMetric::getCaloriesBurned).isNull();
+    }
+
+    @Test
+    void createsWorkoutWithExplicitNullCalories() throws Exception {
+        mockMvc.perform(post("/api/workouts").with(csrf())
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "workoutType": "Swimming",
+                                  "intensity": 5,
+                                  "caloriesBurned": null,
+                                  "startedAt": "2026-09-01T12:00:00Z",
+                                  "endedAt": "2026-09-01T12:45:00Z"
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.caloriesBurned").value(org.hamcrest.Matchers.nullValue()));
+    }
+
+    @Test
+    void acceptsZeroCaloriesAsARecordedValue() throws Exception {
+        mockMvc.perform(post("/api/workouts").with(csrf())
+                        .contentType(APPLICATION_JSON)
+                        .content(workoutJson("Strength", 6, 0,
+                                "2026-09-01T10:00:00Z", "2026-09-01T11:00:00Z")))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.caloriesBurned").value(0));
+    }
+
+    @Test
     void returnsBadRequestForBeanValidationFailure() throws Exception {
         mockMvc.perform(post("/api/workouts").with(csrf())
                         .contentType(APPLICATION_JSON)
@@ -127,8 +173,12 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
                 String.class
         );
 
-        assertThat(successfulMigrations).isEqualTo(7);
-        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7");
+        assertThat(successfulMigrations).isEqualTo(8);
+        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8");
+        assertThat(jdbcTemplate.queryForObject("""
+                SELECT is_nullable FROM information_schema.columns
+                WHERE table_schema = 'public' AND table_name = 'workout_metrics' AND column_name = 'calories_burned'
+                """, String.class)).isEqualTo("YES");
     }
 
     @Test
@@ -153,6 +203,8 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
                 .andExpect(jsonPath("$.paths['/api/workouts/paged'].get.parameters.length()").value(3))
                 .andExpect(jsonPath("$.paths['/api/workouts/filter'].get.parameters.length()").value(5))
                 .andExpect(jsonPath("$.components.schemas.CreateWorkoutMetricRequest").exists())
+                .andExpect(jsonPath("$.components.schemas.CreateWorkoutMetricRequest.required",
+                        org.hamcrest.Matchers.not(org.hamcrest.Matchers.hasItem("caloriesBurned"))))
                 .andExpect(jsonPath("$.components.schemas.WorkoutMetricResponse").exists())
                 .andExpect(jsonPath("$.components.schemas.ApiErrorResponse").exists());
 
