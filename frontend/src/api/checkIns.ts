@@ -1,5 +1,13 @@
 import { apiRequest } from './client'
-import type { CheckInHistoryParameters, CheckInPage } from './checkIns.types'
+import type { CheckInHistoryParameters, CheckInPage, CreateDailyCheckInRequest, DailyCheckInResponse } from './checkIns.types'
+
+export async function createDailyCheckIn(request: CreateDailyCheckInRequest) {
+  return (await apiRequest<DailyCheckInResponse>('/api/daily-check-ins', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  })).data
+}
 
 export async function getCheckInHistory(parameters: CheckInHistoryParameters) {
   const query = new URLSearchParams({

@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { analyticsQueryKey, getCheckInAnalytics, type AnalyticsDateRange } from '../api/analytics'
 import { checkInHistoryQueryKey, getCheckInHistory } from '../api/checkIns'
@@ -7,6 +7,7 @@ import type { CheckInHistoryParameters, CheckInSort } from '../api/checkIns.type
 import { AnalyticsSection } from '../components/AnalyticsSection'
 import { ApiErrorMessage } from '../components/ApiErrorMessage'
 import { CheckInHistory } from '../components/CheckInHistory'
+import { CreateDailyCheckInForm } from '../components/CreateDailyCheckInForm'
 import { DateRangeSelector } from '../components/DateRangeSelector'
 import { KpiCard } from '../components/KpiCard'
 import { formatSleepMinutes, formatSubjectiveAverage } from '../utils/checkIns'
@@ -22,6 +23,8 @@ function integerParameter(value: string | null, fallback: number) {
 }
 
 export function CheckInsPage() {
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [creationMessage, setCreationMessage] = useState('')
   const [searchParams, setSearchParams] = useSearchParams()
   const { preset, range } = dateRangeFromSearchParams(searchParams)
   const page = integerParameter(searchParams.get('page'), 0)
@@ -48,9 +51,10 @@ export function CheckInsPage() {
 
   const checkInCount = analytics.data?.daily.length ?? 0
   return <section aria-labelledby="check-ins-title">
-    <p className="eyebrow">Daily wellbeing</p>
-    <h1 id="check-ins-title">Daily Check-ins</h1>
+    <div className="page-title-row"><div><p className="eyebrow">Daily wellbeing</p><h1 id="check-ins-title">Daily Check-ins</h1></div><button className="primary-button" type="button" onClick={() => { setCreationMessage(''); setShowCreateForm(true) }} aria-expanded={showCreateForm}>Add Check-in</button></div>
     <p className="lede">Review recorded wellbeing ratings, sleep duration, and check-in history.</p>
+    <p className="success-message" role="status">{creationMessage}</p>
+    {showCreateForm && <CreateDailyCheckInForm onClose={() => setShowCreateForm(false)} onCreated={() => setCreationMessage('Check-in saved.')} />}
     <DateRangeSelector key={`${preset}-${range.startDate}-${range.endDate}`} preset={preset} range={range} onPresetChange={setRange} onCustomRangeChange={setCustomRange} />
 
     <AnalyticsSection title="Check-in summary" isPending={analytics.isPending} error={analytics.error}>

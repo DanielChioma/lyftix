@@ -14,6 +14,17 @@ export interface DailyCheckInResponse {
   updatedAt: string
 }
 
+export interface CreateDailyCheckInRequest {
+  checkInDate: string
+  mood: number
+  energy: number
+  focus: number
+  stress: number
+  sleepMinutes: number
+  productivity: number
+  notes: string | null
+}
+
 export type CheckInSort =
   | 'checkInDate'
   | 'mood'

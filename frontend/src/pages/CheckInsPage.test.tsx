@@ -40,6 +40,13 @@ function mockRequests(analyticsResponse: unknown = analytics, historyResponse: u
 
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers() })
 
+it('opens the daily check-in form from the page action', async () => {
+  mockRequests(); renderWithProviders(<CheckInsPage />, '/check-ins')
+  fireEvent.click(screen.getByRole('button', { name: 'Add Check-in' }))
+  expect(screen.getByRole('heading', { name: 'Add daily check-in' })).toBeInTheDocument()
+  expect(screen.getByLabelText('Check-in date')).toBeRequired()
+})
+
 it('renders KPIs, 1–10 scales, charts, summary, and history fields', async () => {
   mockRequests(); renderWithProviders(<CheckInsPage />, '/check-ins')
   expect(await screen.findByLabelText('Average mood (1–10): 7.3 / 10')).toBeInTheDocument()

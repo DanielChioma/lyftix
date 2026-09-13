@@ -75,7 +75,7 @@ it('distinguishes unrecorded calories from a recorded zero', async () => {
   expect(await screen.findByLabelText('Calories burned: Not recorded')).toBeInTheDocument()
   expect(screen.getAllByText('Not recorded').length).toBeGreaterThan(1)
   expect(screen.getAllByText('0').length).toBeGreaterThan(0)
-  expect(screen.getByText('No calorie data recorded in this range.')).toBeInTheDocument()
+  expect(await screen.findByText('No calorie data recorded in this range.')).toBeInTheDocument()
 })
 
 it('requests the custom date filter and server sort exactly', async () => {
