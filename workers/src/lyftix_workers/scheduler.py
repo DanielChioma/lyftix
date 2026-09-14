@@ -7,7 +7,10 @@ from collections.abc import Callable
 from pathlib import Path
 from types import TracebackType
 
+from lyftix_workers.auth import LyftixAuthenticationError
 from lyftix_workers.github.client import GitHubApiError
+from lyftix_workers.system_metrics.client import SystemMetricApiError
+from lyftix_workers.system_metrics.collector import SystemMetricCollectionError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -83,10 +86,39 @@ class GitHubScheduler:
                     result = self._run_once()
                     if getattr(result, "successful", True) is False:
                         LOGGER.error("Scheduled GitHub ingestion completed with event failures")
-                except GitHubApiError as exc:
+                except (GitHubApiError, LyftixAuthenticationError) as exc:
                     LOGGER.error("Scheduled GitHub ingestion failed and will retry: %s", exc)
                 finally:
                     self._run_lock.release()
             if self._waiter(self._interval_seconds):
                 break
         LOGGER.info("GitHub scheduler stopped")
+
+
+class SystemMetricScheduler:
+    def __init__(
+        self,
+        run_once: Callable[[], object],
+        interval_seconds: int,
+        stop_event: threading.Event,
+        waiter: Callable[[float], bool] | None = None,
+    ) -> None:
+        self._run_once = run_once
+        self._interval_seconds = interval_seconds
+        self._stop_event = stop_event
+        self._waiter = waiter or stop_event.wait
+
+    def run(self) -> None:
+        LOGGER.info("System metrics scheduler starting intervalSeconds=%d", self._interval_seconds)
+        while not self._stop_event.is_set():
+            try:
+                self._run_once()
+            except (
+                LyftixAuthenticationError,
+                SystemMetricCollectionError,
+                SystemMetricApiError,
+            ) as exc:
+                LOGGER.error("Scheduled system metric ingestion failed and will retry: %s", exc)
+            if self._waiter(self._interval_seconds):
+                break
+        LOGGER.info("System metrics scheduler stopped")

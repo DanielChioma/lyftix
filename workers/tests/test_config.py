@@ -8,6 +8,8 @@ def test_loads_required_environment_configuration(monkeypatch: pytest.MonkeyPatc
     monkeypatch.setenv("GITHUB_TOKEN", "secret")
     monkeypatch.setenv("GITHUB_USERNAME", "octocat")
     monkeypatch.setenv("LYFTIX_API_BASE_URL", "http://localhost:8080")
+    monkeypatch.setenv("LYFTIX_WORKER_USERNAME", "worker")
+    monkeypatch.setenv("LYFTIX_WORKER_PASSWORD", "worker-password")
 
     settings = WorkerSettings()
 
@@ -17,7 +19,13 @@ def test_loads_required_environment_configuration(monkeypatch: pytest.MonkeyPatc
 
 
 def test_missing_required_configuration_fails_clearly(monkeypatch: pytest.MonkeyPatch) -> None:
-    for name in ("GITHUB_TOKEN", "GITHUB_USERNAME", "LYFTIX_API_BASE_URL"):
+    for name in (
+        "GITHUB_TOKEN",
+        "GITHUB_USERNAME",
+        "LYFTIX_API_BASE_URL",
+        "LYFTIX_WORKER_USERNAME",
+        "LYFTIX_WORKER_PASSWORD",
+    ):
         monkeypatch.delenv(name, raising=False)
 
     with pytest.raises(ValidationError) as error:
@@ -27,6 +35,8 @@ def test_missing_required_configuration_fails_clearly(monkeypatch: pytest.Monkey
     assert "GITHUB_TOKEN" in message
     assert "GITHUB_USERNAME" in message
     assert "LYFTIX_API_BASE_URL" in message
+    assert "LYFTIX_WORKER_USERNAME" in message
+    assert "LYFTIX_WORKER_PASSWORD" in message
 
 
 @pytest.mark.parametrize(
@@ -41,6 +51,8 @@ def test_rejects_unsafe_scheduling_configuration(
     monkeypatch.setenv("GITHUB_TOKEN", "secret")
     monkeypatch.setenv("GITHUB_USERNAME", "octocat")
     monkeypatch.setenv("LYFTIX_API_BASE_URL", "http://localhost:8080")
+    monkeypatch.setenv("LYFTIX_WORKER_USERNAME", "worker")
+    monkeypatch.setenv("LYFTIX_WORKER_PASSWORD", "worker-password")
     monkeypatch.setenv(name, value)
 
     with pytest.raises(ValidationError):

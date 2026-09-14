@@ -3,7 +3,8 @@ from pathlib import Path
 from unittest.mock import Mock
 
 from lyftix_workers.github.client import GitHubApiError
-from lyftix_workers.scheduler import GitHubScheduler, RunLock
+from lyftix_workers.scheduler import GitHubScheduler, RunLock, SystemMetricScheduler
+from lyftix_workers.system_metrics.client import SystemMetricApiError
 
 
 def test_scheduler_runs_repeatedly_and_uses_interval(tmp_path: Path) -> None:
@@ -85,3 +86,17 @@ def test_second_lock_for_same_state_path_cannot_overlap(tmp_path: Path) -> None:
         assert not second.try_acquire()
     finally:
         first.release()
+
+
+def test_system_metric_scheduler_recovers_and_runs_again() -> None:
+    run_once = Mock(side_effect=[SystemMetricApiError("temporary"), None])
+    waits = iter([False, True])
+
+    SystemMetricScheduler(
+        run_once,
+        60,
+        threading.Event(),
+        lambda interval: next(waits),
+    ).run()
+
+    assert run_once.call_count == 2

@@ -33,7 +33,13 @@ def metric_snapshot() -> SystemMetricSnapshot:
 
 
 def clear_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    for name in ("LYFTIX_API_BASE_URL", "SYSTEM_METRICS_SOURCE", "SYSTEM_METRICS_DISK_PATH"):
+    for name in (
+        "LYFTIX_API_BASE_URL",
+        "LYFTIX_WORKER_USERNAME",
+        "LYFTIX_WORKER_PASSWORD",
+        "SYSTEM_METRICS_SOURCE",
+        "SYSTEM_METRICS_DISK_PATH",
+    ):
         monkeypatch.delenv(name, raising=False)
 
 
@@ -71,6 +77,13 @@ def test_cli_routes_system_metrics_command(monkeypatch: pytest.MonkeyPatch) -> N
     assert main_module.main() == 7
 
 
+def test_cli_routes_system_metrics_schedule_command(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["lyftix-worker", "system-metrics-schedule"])
+    monkeypatch.setattr(main_module, "run_system_metrics", lambda job: 7)
+
+    assert main_module.main() == 7
+
+
 @pytest.mark.parametrize(("status_code", "expected_exit"), [(201, 0), (500, 1)])
 def test_command_posts_exact_payload_and_returns_exit_code(
     monkeypatch: pytest.MonkeyPatch,
@@ -79,6 +92,9 @@ def test_command_posts_exact_payload_and_returns_exit_code(
 ) -> None:
     clear_environment(monkeypatch)
     monkeypatch.setenv("LYFTIX_API_BASE_URL", "http://lyftix.test")
+    monkeypatch.setenv("LYFTIX_WORKER_USERNAME", "worker")
+    monkeypatch.setenv("LYFTIX_WORKER_PASSWORD", "worker-password")
+    monkeypatch.setattr(main_module, "authenticate", lambda *args: None)
     monkeypatch.setattr(main_module, "SystemMetricCollector", lambda source, path: StubCollector())
     posted: list[dict] = []
 

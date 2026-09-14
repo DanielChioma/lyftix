@@ -13,6 +13,11 @@ class WorkerSettings(BaseSettings):
     github_token: SecretStr = Field(validation_alias="GITHUB_TOKEN")
     github_username: str = Field(min_length=1, validation_alias="GITHUB_USERNAME")
     lyftix_api_base_url: AnyHttpUrl = Field(validation_alias="LYFTIX_API_BASE_URL")
+    lyftix_worker_username: str = Field(
+        min_length=1,
+        validation_alias="LYFTIX_WORKER_USERNAME",
+    )
+    lyftix_worker_password: SecretStr = Field(validation_alias="LYFTIX_WORKER_PASSWORD")
     github_api_base_url: AnyHttpUrl = Field(
         default=AnyHttpUrl("https://api.github.com"),
         validation_alias="GITHUB_API_BASE_URL",
@@ -50,6 +55,11 @@ class CodingSessionSettings(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore")
 
     lyftix_api_base_url: AnyHttpUrl = Field(validation_alias="LYFTIX_API_BASE_URL")
+    lyftix_worker_username: str = Field(
+        min_length=1,
+        validation_alias="LYFTIX_WORKER_USERNAME",
+    )
+    lyftix_worker_password: SecretStr = Field(validation_alias="LYFTIX_WORKER_PASSWORD")
     coding_sessions_input_path: Path = Field(validation_alias="CODING_SESSIONS_INPUT_PATH")
     coding_session_default_source: str | None = Field(
         default=None,
@@ -86,6 +96,11 @@ class SystemMetricSettings(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore")
 
     lyftix_api_base_url: AnyHttpUrl = Field(validation_alias="LYFTIX_API_BASE_URL")
+    lyftix_worker_username: str = Field(
+        min_length=1,
+        validation_alias="LYFTIX_WORKER_USERNAME",
+    )
+    lyftix_worker_password: SecretStr = Field(validation_alias="LYFTIX_WORKER_PASSWORD")
     system_metrics_source: str = Field(
         default="local",
         min_length=1,
@@ -100,6 +115,11 @@ class SystemMetricSettings(BaseSettings):
         default=10.0,
         gt=0,
         validation_alias="HTTP_TIMEOUT_SECONDS",
+    )
+    system_metrics_interval_seconds: int = Field(
+        default=60,
+        ge=10,
+        validation_alias="SYSTEM_METRICS_INTERVAL_SECONDS",
     )
 
     @field_validator("system_metrics_source")

@@ -16,6 +16,8 @@ def clear_coding_environment(monkeypatch: pytest.MonkeyPatch) -> None:
         "LYFTIX_API_BASE_URL",
         "CODING_SESSIONS_INPUT_PATH",
         "CODING_SESSION_DEFAULT_SOURCE",
+        "LYFTIX_WORKER_USERNAME",
+        "LYFTIX_WORKER_PASSWORD",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -56,6 +58,8 @@ def test_valid_configuration_loads(monkeypatch: pytest.MonkeyPatch, tmp_path: Pa
     monkeypatch.setenv("LYFTIX_API_BASE_URL", "http://localhost:8080")
     monkeypatch.setenv("CODING_SESSIONS_INPUT_PATH", str(path))
     monkeypatch.setenv("CODING_SESSION_DEFAULT_SOURCE", "file")
+    monkeypatch.setenv("LYFTIX_WORKER_USERNAME", "worker")
+    monkeypatch.setenv("LYFTIX_WORKER_PASSWORD", "worker-password")
 
     settings = CodingSessionSettings()
 
@@ -93,6 +97,9 @@ def test_command_wires_input_to_backend_and_returns_summary_exit_code(
     monkeypatch.setenv("LYFTIX_API_BASE_URL", "http://lyftix.test")
     monkeypatch.setenv("CODING_SESSIONS_INPUT_PATH", str(path))
     monkeypatch.setenv("CODING_SESSION_DEFAULT_SOURCE", "file")
+    monkeypatch.setenv("LYFTIX_WORKER_USERNAME", "worker")
+    monkeypatch.setenv("LYFTIX_WORKER_PASSWORD", "worker-password")
+    monkeypatch.setattr(main_module, "authenticate", lambda *args: None)
     posted: list[dict] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
