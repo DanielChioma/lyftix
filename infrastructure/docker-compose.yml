@@ -7,8 +7,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "${DB_PORT:-5435}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -40,8 +38,6 @@ services:
       LYFTIX_SESSION_COOKIE_SECURE: ${LYFTIX_SESSION_COOKIE_SECURE:-true}
       LYFTIX_AUTH_BOOTSTRAP_USERNAME: ${LYFTIX_AUTH_BOOTSTRAP_USERNAME:-}
       LYFTIX_AUTH_BOOTSTRAP_PASSWORD: ${LYFTIX_AUTH_BOOTSTRAP_PASSWORD:-}
-    ports:
-      - "${BACKEND_PORT:-8080}:8080"
     restart: unless-stopped
 
   frontend:
@@ -157,8 +153,6 @@ services:
     command:
       - --config.file=/etc/alertmanager/alertmanager.yml
       - --storage.path=/alertmanager
-    ports:
-      - "${ALERTMANAGER_PORT:-9093}:9093"
     volumes:
       - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager_data:/alertmanager
@@ -172,8 +166,6 @@ services:
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
-    ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/rules:/etc/prometheus/rules:ro
