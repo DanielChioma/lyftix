@@ -37,6 +37,9 @@ public record CreateSystemMetricRequest(
         @PositiveOrZero
         @Schema(description = "One-minute system load average; null where unsupported", example = "1.25", nullable = true)
         Double loadAverage1m,
+        @NotNull @PositiveOrZero
+        @Schema(description = "Host uptime in seconds", example = "86400")
+        Long uptimeSeconds,
         @NotNull
         @Schema(description = "UTC instant when the snapshot was collected", format = "date-time")
         Instant collectedAt

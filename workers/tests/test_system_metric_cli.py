@@ -27,7 +27,7 @@ class StubClient:
 
 def metric_snapshot() -> SystemMetricSnapshot:
     return SystemMetricSnapshot(
-        "lyftix-host", "local", 37.5, 400, 1000, 500, 2000, None,
+        "lyftix-host", "local", 37.5, 400, 1000, 500, 2000, None, 3600,
         "2026-09-08T12:00:00Z",
     )
 
@@ -38,6 +38,9 @@ def clear_environment(monkeypatch: pytest.MonkeyPatch) -> None:
         "LYFTIX_WORKER_USERNAME",
         "LYFTIX_WORKER_PASSWORD",
         "SYSTEM_METRICS_SOURCE",
+        "SYSTEM_METRICS_COLLECTION_MODE",
+        "SYSTEM_METRICS_HOSTNAME",
+        "SYSTEM_METRICS_PROC_PATH",
         "SYSTEM_METRICS_DISK_PATH",
     ):
         monkeypatch.delenv(name, raising=False)
@@ -67,6 +70,22 @@ def test_configuration_rejects_invalid_disk_path(
     monkeypatch.setenv("SYSTEM_METRICS_DISK_PATH", str(tmp_path / "missing"))
 
     with pytest.raises(ValidationError, match="existing directory"):
+        SystemMetricSettings()
+
+
+def test_host_configuration_requires_hostname_and_proc_inputs(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    clear_environment(monkeypatch)
+    monkeypatch.setenv("LYFTIX_API_BASE_URL", "http://localhost:8080")
+    monkeypatch.setenv("LYFTIX_WORKER_USERNAME", "worker")
+    monkeypatch.setenv("LYFTIX_WORKER_PASSWORD", "worker-password")
+    monkeypatch.setenv("SYSTEM_METRICS_COLLECTION_MODE", "host")
+    monkeypatch.setenv("SYSTEM_METRICS_DISK_PATH", str(tmp_path))
+    monkeypatch.setenv("SYSTEM_METRICS_PROC_PATH", str(tmp_path / "proc"))
+
+    with pytest.raises(ValidationError, match="SYSTEM_METRICS_HOSTNAME"):
         SystemMetricSettings()
 
 

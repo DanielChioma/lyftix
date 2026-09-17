@@ -43,6 +43,9 @@ public class SystemMetric {
     private Double loadAverage1m;
 
     @Column(nullable = false)
+    private Long uptimeSeconds;
+
+    @Column(nullable = false)
     private Instant collectedAt;
 
     @CreationTimestamp
@@ -66,6 +69,8 @@ public class SystemMetric {
     public void setDiskTotalBytes(Long diskTotalBytes) { this.diskTotalBytes = diskTotalBytes; }
     public Double getLoadAverage1m() { return loadAverage1m; }
     public void setLoadAverage1m(Double loadAverage1m) { this.loadAverage1m = loadAverage1m; }
+    public Long getUptimeSeconds() { return uptimeSeconds; }
+    public void setUptimeSeconds(Long uptimeSeconds) { this.uptimeSeconds = uptimeSeconds; }
     public Instant getCollectedAt() { return collectedAt; }
     public void setCollectedAt(Instant collectedAt) { this.collectedAt = collectedAt; }
     public Instant getCreatedAt() { return createdAt; }

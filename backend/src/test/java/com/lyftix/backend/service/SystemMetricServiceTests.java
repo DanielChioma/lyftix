@@ -49,6 +49,7 @@ class SystemMetricServiceTests {
         assertThat(response.cpuPercent()).isEqualTo(23.5);
         assertThat(response.memoryUsedBytes()).isEqualTo(400L);
         assertThat(response.loadAverage1m()).isEqualTo(1.25);
+        assertThat(response.uptimeSeconds()).isEqualTo(86400L);
         assertThat(response.createdAt()).isEqualTo(COLLECTED_AT.plusSeconds(1));
         verify(repository).save(any(SystemMetric.class));
     }
@@ -56,7 +57,8 @@ class SystemMetricServiceTests {
     @Test
     void rejectsUsedBytesAboveTotals() {
         CreateSystemMetricRequest invalid = new CreateSystemMetricRequest(
-                "host", "local", 10.0, 101L, 100L, 20L, 100L, null, COLLECTED_AT
+                "host", "local", 10.0, 101L, 100L, 20L, 100L, null, 60L,
+                COLLECTED_AT
         );
 
         assertThatThrownBy(() -> service.createSystemMetric(invalid))
@@ -92,7 +94,7 @@ class SystemMetricServiceTests {
     private CreateSystemMetricRequest validRequest() {
         return new CreateSystemMetricRequest(
                 "lyftix-server", "local", 23.5, 400L, 1000L, 500L, 2000L, 1.25,
-                COLLECTED_AT
+                86400L, COLLECTED_AT
         );
     }
 
@@ -107,6 +109,7 @@ class SystemMetricServiceTests {
         when(metric.getDiskUsedBytes()).thenReturn(500L);
         when(metric.getDiskTotalBytes()).thenReturn(2000L);
         when(metric.getLoadAverage1m()).thenReturn(1.25);
+        when(metric.getUptimeSeconds()).thenReturn(86400L);
         when(metric.getCollectedAt()).thenReturn(COLLECTED_AT);
         when(metric.getCreatedAt()).thenReturn(COLLECTED_AT.plusSeconds(1));
         return metric;

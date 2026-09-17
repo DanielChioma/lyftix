@@ -173,8 +173,8 @@ class WorkoutMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
                 String.class
         );
 
-        assertThat(successfulMigrations).isEqualTo(8);
-        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8");
+        assertThat(successfulMigrations).isEqualTo(9);
+        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9");
         assertThat(jdbcTemplate.queryForObject("""
                 SELECT is_nullable FROM information_schema.columns
                 WHERE table_schema = 'public' AND table_name = 'workout_metrics' AND column_name = 'calories_burned'

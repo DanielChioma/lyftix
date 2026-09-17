@@ -119,9 +119,18 @@ services:
       LYFTIX_WORKER_USERNAME: ${LYFTIX_WORKER_USERNAME:-}
       LYFTIX_WORKER_PASSWORD: ${LYFTIX_WORKER_PASSWORD:-}
       HTTP_TIMEOUT_SECONDS: ${WORKER_HTTP_TIMEOUT_SECONDS:-10}
-      SYSTEM_METRICS_SOURCE: ${SYSTEM_METRICS_SOURCE:-container}
-      SYSTEM_METRICS_DISK_PATH: /
+      SYSTEM_METRICS_COLLECTION_MODE: host
+      SYSTEM_METRICS_HOSTNAME: ${SYSTEM_METRICS_HOSTNAME:-ds-server}
+      SYSTEM_METRICS_SOURCE: ${SYSTEM_METRICS_SOURCE:-host-worker}
+      SYSTEM_METRICS_PROC_PATH: /host-proc
+      SYSTEM_METRICS_DISK_PATH: /host-disk
       SYSTEM_METRICS_INTERVAL_SECONDS: ${SYSTEM_METRICS_INTERVAL_SECONDS:-60}
+    volumes:
+      - /proc/stat:/host-proc/stat:ro
+      - /proc/meminfo:/host-proc/meminfo:ro
+      - /proc/loadavg:/host-proc/loadavg:ro
+      - /proc/uptime:/host-proc/uptime:ro
+      - ${SYSTEM_METRICS_HOST_DISK_PATH:-/var/lib/lyftix-host-metrics}:/host-disk:ro
     networks:
       - worker_api
     restart: unless-stopped

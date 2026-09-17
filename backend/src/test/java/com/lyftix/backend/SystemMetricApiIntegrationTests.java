@@ -34,11 +34,13 @@ class SystemMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
         createMetric("host-one", "2026-09-08T10:00:00Z")
                 .andExpect(jsonPath("$.id").isNumber())
                 .andExpect(jsonPath("$.cpuPercent").value(25.5))
+                .andExpect(jsonPath("$.uptimeSeconds").value(86400))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());
 
         List<SystemMetric> metrics = repository.findAll();
         assertThat(metrics).hasSize(1);
         assertThat(metrics.getFirst().getHostname()).isEqualTo("host-one");
+        assertThat(metrics.getFirst().getUptimeSeconds()).isEqualTo(86400L);
         assertThat(metrics.getFirst().getCreatedAt()).isNotNull();
     }
 
@@ -114,11 +116,11 @@ class SystemMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
     }
 
     @Test
-    void appliesFlywayV6AndPublishesOpenApiPathsAndSchemas() throws Exception {
+    void appliesFlywayMigrationsAndPublishesOpenApiPathsAndSchemas() throws Exception {
         assertThat(jdbcTemplate.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank",
                 String.class
-        )).containsExactly("1", "2", "3", "4", "5", "6", "7", "8");
+        )).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9");
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM pg_indexes WHERE tablename = 'system_metrics' "
                         + "AND indexname IN ('idx_system_metrics_collected_at', "
@@ -149,7 +151,7 @@ class SystemMetricApiIntegrationTests extends PostgreSqlIntegrationTest {
                 {"hostname":"%s","source":"local","cpuPercent":25.5,
                  "memoryUsedBytes":400,"memoryTotalBytes":1000,
                  "diskUsedBytes":500,"diskTotalBytes":2000,
-                 "loadAverage1m":1.25,"collectedAt":"%s"}
+                 "loadAverage1m":1.25,"uptimeSeconds":86400,"collectedAt":"%s"}
                 """.formatted(hostname, collectedAt);
     }
 }

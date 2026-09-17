@@ -1,7 +1,8 @@
 import os
 from pathlib import Path
+from typing import Literal
 
-from pydantic import AnyHttpUrl, Field, SecretStr, field_validator
+from pydantic import AnyHttpUrl, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -101,6 +102,15 @@ class SystemMetricSettings(BaseSettings):
         validation_alias="LYFTIX_WORKER_USERNAME",
     )
     lyftix_worker_password: SecretStr = Field(validation_alias="LYFTIX_WORKER_PASSWORD")
+    system_metrics_collection_mode: Literal["local", "host"] = Field(
+        default="local",
+        validation_alias="SYSTEM_METRICS_COLLECTION_MODE",
+    )
+    system_metrics_hostname: str | None = Field(
+        default=None,
+        max_length=255,
+        validation_alias="SYSTEM_METRICS_HOSTNAME",
+    )
     system_metrics_source: str = Field(
         default="local",
         min_length=1,
@@ -110,6 +120,10 @@ class SystemMetricSettings(BaseSettings):
     system_metrics_disk_path: Path = Field(
         default=Path("/"),
         validation_alias="SYSTEM_METRICS_DISK_PATH",
+    )
+    system_metrics_proc_path: Path = Field(
+        default=Path("/host-proc"),
+        validation_alias="SYSTEM_METRICS_PROC_PATH",
     )
     http_timeout_seconds: float = Field(
         default=10.0,
@@ -138,3 +152,16 @@ class SystemMetricSettings(BaseSettings):
         if not os.access(path, os.R_OK):
             raise ValueError("system metrics disk path must be readable")
         return path
+
+    @model_validator(mode="after")
+    def validate_host_inputs(self) -> "SystemMetricSettings":
+        if self.system_metrics_collection_mode != "host":
+            return self
+        if self.system_metrics_hostname is None or not self.system_metrics_hostname.strip():
+            raise ValueError("SYSTEM_METRICS_HOSTNAME is required in host collection mode")
+        proc_path = self.system_metrics_proc_path.expanduser()
+        for filename in ("stat", "meminfo", "loadavg", "uptime"):
+            path = proc_path / filename
+            if not path.is_file() or not os.access(path, os.R_OK):
+                raise ValueError(f"host proc input must be a readable file: {path}")
+        return self

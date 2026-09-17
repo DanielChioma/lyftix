@@ -34,6 +34,7 @@ public class SystemMetricService {
         metric.setDiskUsedBytes(request.diskUsedBytes());
         metric.setDiskTotalBytes(request.diskTotalBytes());
         metric.setLoadAverage1m(request.loadAverage1m());
+        metric.setUptimeSeconds(request.uptimeSeconds());
         metric.setCollectedAt(request.collectedAt());
         return toResponse(repository.save(metric));
     }
@@ -85,8 +86,8 @@ public class SystemMetricService {
         return new SystemMetricResponse(
                 metric.getId(), metric.getHostname(), metric.getSource(), metric.getCpuPercent(),
                 metric.getMemoryUsedBytes(), metric.getMemoryTotalBytes(), metric.getDiskUsedBytes(),
-                metric.getDiskTotalBytes(), metric.getLoadAverage1m(), metric.getCollectedAt(),
-                metric.getCreatedAt()
+                metric.getDiskTotalBytes(), metric.getLoadAverage1m(), metric.getUptimeSeconds(),
+                metric.getCollectedAt(), metric.getCreatedAt()
         );
     }
 }

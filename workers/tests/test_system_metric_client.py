@@ -17,6 +17,7 @@ def snapshot() -> SystemMetricSnapshot:
         disk_used_bytes=500,
         disk_total_bytes=2000,
         load_average_1m=1.25,
+        uptime_seconds=86400,
         collected_at="2026-09-08T12:00:00Z",
     )
 
@@ -41,6 +42,7 @@ def test_posts_exact_payload_and_accepts_created() -> None:
         "diskUsedBytes": 500,
         "diskTotalBytes": 2000,
         "loadAverage1m": 1.25,
+        "uptimeSeconds": 86400,
         "collectedAt": "2026-09-08T12:00:00Z",
     }
 

@@ -16,6 +16,7 @@ public record SystemMetricResponse(
         @Schema(description = "Total bytes on the configured filesystem") Long diskTotalBytes,
         @Schema(description = "One-minute system load average; null where unsupported", nullable = true)
         Double loadAverage1m,
+        @Schema(description = "Host uptime in seconds") Long uptimeSeconds,
         @Schema(format = "date-time") Instant collectedAt,
         @Schema(format = "date-time") Instant createdAt
 ) {

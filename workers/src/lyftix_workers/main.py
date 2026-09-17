@@ -20,6 +20,7 @@ from lyftix_workers.scheduler import GitHubScheduler, RunLock, SystemMetricSched
 from lyftix_workers.state import CheckpointError, CheckpointStore
 from lyftix_workers.system_metrics.client import SystemMetricApiError, SystemMetricClient
 from lyftix_workers.system_metrics.collector import (
+    LinuxHostSystemMetricCollector,
     SystemMetricCollectionError,
     SystemMetricCollector,
 )
@@ -90,10 +91,7 @@ def run_system_metrics(job: str = "system-metrics") -> int:
     try:
         with httpx.Client(timeout=timeout) as http_client:
             ingestion_job = SystemMetricIngestionJob(
-                SystemMetricCollector(
-                    settings.system_metrics_source,
-                    settings.system_metrics_disk_path,
-                ),
+                create_system_metric_collector(settings),
                 SystemMetricClient(http_client, str(settings.lyftix_api_base_url)),
             )
             if job == "system-metrics":
@@ -112,6 +110,22 @@ def run_system_metrics(job: str = "system-metrics") -> int:
         LOGGER.error("System metric ingestion failed: %s", exc)
         return 1
     return 0
+
+
+def create_system_metric_collector(
+    settings: SystemMetricSettings,
+) -> SystemMetricCollector:
+    if settings.system_metrics_collection_mode == "host":
+        return LinuxHostSystemMetricCollector(
+            settings.system_metrics_hostname or "",
+            settings.system_metrics_source,
+            settings.system_metrics_proc_path,
+            settings.system_metrics_disk_path,
+        )
+    return SystemMetricCollector(
+        settings.system_metrics_source,
+        settings.system_metrics_disk_path,
+    )
 
 
 def run_github(job: str) -> int:
