@@ -4,6 +4,7 @@ import com.lyftix.backend.logging.RequestLoggingFilter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -11,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@TestPropertySource(properties = "server.forward-headers-strategy=framework")
 class CorsIntegrationTests extends PostgreSqlIntegrationTest {
 
     private static final String FRONTEND_ORIGIN = "http://localhost:5173";
@@ -47,6 +49,16 @@ class CorsIntegrationTests extends PostgreSqlIntegrationTest {
                         .header(HttpHeaders.ORIGIN, "https://untrusted.example")
                         .header(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, "GET"))
                 .andExpect(status().isForbidden())
+                .andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
+    }
+
+    @Test
+    void treatsForwardedHostWithExternalPortAsSameOrigin() throws Exception {
+        mockMvc.perform(get("/api/health")
+                        .header(HttpHeaders.ORIGIN, "http://proxy.example:8088")
+                        .header("X-Forwarded-Host", "proxy.example:8088")
+                        .header("X-Forwarded-Proto", "http"))
+                .andExpect(status().isOk())
                 .andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
     }
 }
