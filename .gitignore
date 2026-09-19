@@ -4,6 +4,7 @@
 *.log
 docs/
 infrastructure/.env
+infrastructure/secrets/
 workers/.env
 workers/.venv/
 workers/.pytest_cache/

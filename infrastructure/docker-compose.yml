@@ -193,8 +193,10 @@ services:
       - prometheus
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_initial_admin_password
       GF_USERS_ALLOW_SIGN_UP: "false"
+    secrets:
+      - grafana_initial_admin_password
     ports:
       - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
     volumes:
@@ -214,3 +216,7 @@ networks:
   worker_api:
   worker_db:
     internal: true
+
+secrets:
+  grafana_initial_admin_password:
+    file: ${GRAFANA_INITIAL_ADMIN_PASSWORD_FILE:-./secrets/grafana-initial-admin-password}
