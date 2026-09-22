@@ -169,6 +169,8 @@ Lyftix v1 is deployed on a self-hosted Ubuntu Linux HP server with Docker Compos
 
 This repository defines the containers and Compose topology; Tailscale Serve configuration and secret material remain host-managed concerns.
 
+For ingress, service exposure, and trust boundaries, see the [production topology](docs/architecture/production-topology.md).
+
 ## Repository structure
 
 ```text
