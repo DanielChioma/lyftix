@@ -269,7 +269,29 @@ For production host disk metrics, create the dedicated directory documented in `
 
 ## Screenshots
 
-Production UI and observability screenshots will be added as part of the portfolio documentation.
+### Workout Analytics
+
+Persisted workouts drive KPI summaries, date-filtered history, charts, and workout analytics.
+
+![Workout Analytics dashboard](docs/img/workout-analytics.png)
+
+### System Metrics
+
+Lyftix's Linux host-metrics worker ingests CPU, memory, disk, and load data for historical system analysis.
+
+![System Metrics dashboard](docs/img/system-metrics.png)
+
+### Grafana Backend Overview
+
+Prometheus and Grafana expose production backend, Java virtual machine (JVM), and HTTP telemetry.
+
+![Grafana Backend Overview dashboard](docs/img/grafana-backend-overview.png)
+
+### Daily Check-ins mobile
+
+The responsive React interface presents wellbeing check-ins and analytics on a mobile viewport.
+
+![Daily Check-ins dashboard on mobile](docs/img/daily-check-ins-mobile.png)
 
 ## Engineering decisions and lessons
 

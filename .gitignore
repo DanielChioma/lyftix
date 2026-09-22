@@ -2,7 +2,7 @@
 .vscode/
 .DS_Store
 *.log
-docs/
+docs/build-log.md
 infrastructure/.env
 infrastructure/secrets/
 workers/.env
