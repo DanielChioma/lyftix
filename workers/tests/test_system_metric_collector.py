@@ -103,7 +103,7 @@ def test_collects_explicit_linux_host_metrics_from_narrow_inputs(
     monkeypatch.setattr(collector_module.psutil, "disk_usage", disk_usage)
 
     snapshot = LinuxHostSystemMetricCollector(
-        "ds-server",
+        "host.example.test",
         "host-worker",
         proc_path,
         disk_path,
@@ -111,7 +111,7 @@ def test_collects_explicit_linux_host_metrics_from_narrow_inputs(
         sleeper=advance_cpu,
     ).collect()
 
-    assert snapshot.hostname == "ds-server"
+    assert snapshot.hostname == "host.example.test"
     assert snapshot.source == "host-worker"
     assert snapshot.cpu_percent == 70.0
     assert (snapshot.memory_used_bytes, snapshot.memory_total_bytes) == (614400, 1024000)
@@ -147,7 +147,7 @@ def test_host_cpu_uses_delta_from_previous_sample(
         (proc_path / "stat").write_text("cpu 20 0 10 90 0 0 0 0\n", encoding="utf-8")
 
     collector = LinuxHostSystemMetricCollector(
-        "ds-server", "host-worker", proc_path, disk_path, sleeper=initial_sample
+        "host.example.test", "host-worker", proc_path, disk_path, sleeper=initial_sample
     )
     assert collector.collect().cpu_percent == 50.0
 
@@ -160,5 +160,5 @@ def test_host_collector_reports_missing_proc_input(tmp_path: Path) -> None:
     proc_path.mkdir()
     with pytest.raises(SystemMetricCollectionError, match="cannot read host proc stat"):
         LinuxHostSystemMetricCollector(
-            "ds-server", "host-worker", proc_path, tmp_path, sleeper=lambda _: None
+            "host.example.test", "host-worker", proc_path, tmp_path, sleeper=lambda _: None
         ).collect()

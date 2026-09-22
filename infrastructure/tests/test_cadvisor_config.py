@@ -18,6 +18,7 @@ class CadvisorComposeTests(unittest.TestCase):
                 "POSTGRES_DB": "lyftix",
                 "POSTGRES_USER": "lyftix_user",
                 "POSTGRES_PASSWORD": "test-password",
+                "SYSTEM_METRICS_HOSTNAME": "host.example.test",
             }
         )
 

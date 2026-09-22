@@ -69,8 +69,8 @@ class CorsIntegrationTests extends PostgreSqlIntegrationTest {
     @Test
     void treatsForwardedHttpsAuthorityAsSameOrigin() throws Exception {
         mockMvc.perform(get("/api/health")
-                        .header(HttpHeaders.ORIGIN, "https://ds-server.tail4ac73e.ts.net")
-                        .header("X-Forwarded-Host", "ds-server.tail4ac73e.ts.net")
+                        .header(HttpHeaders.ORIGIN, "https://app.example.test")
+                        .header("X-Forwarded-Host", "app.example.test")
                         .header("X-Forwarded-Proto", "https"))
                 .andExpect(status().isOk())
                 .andExpect(header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
@@ -79,8 +79,8 @@ class CorsIntegrationTests extends PostgreSqlIntegrationTest {
     @Test
     void acceptsHttpsOriginForLoginThroughForwardedAuthority() throws Exception {
         mockMvc.perform(post("/api/auth/login").with(csrf())
-                        .header(HttpHeaders.ORIGIN, "https://ds-server.tail4ac73e.ts.net")
-                        .header("X-Forwarded-Host", "ds-server.tail4ac73e.ts.net")
+                        .header(HttpHeaders.ORIGIN, "https://app.example.test")
+                        .header("X-Forwarded-Host", "app.example.test")
                         .header("X-Forwarded-Proto", "https")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"unknown\",\"password\":\"wrong\"}"))

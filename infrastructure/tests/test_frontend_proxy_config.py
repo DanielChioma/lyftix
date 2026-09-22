@@ -24,7 +24,8 @@ class FrontendProxyConfigurationTests(unittest.TestCase):
         )
         self.assertIn('proxy_set_header Forwarded "";', configuration)
         self.assertIn('proxy_set_header X-Forwarded-Port "";', configuration)
-        self.assertNotIn("ds-server.tail4ac73e.ts.net", configuration)
+        self.assertNotRegex(configuration, r"\.tail[0-9a-f]+\.ts\.net")
+        self.assertNotIn("map $http_host", configuration)
         self.assertNotIn("$http_x_forwarded_proto", configuration)
         self.assertIn("ENV LYFTIX_PUBLIC_SCHEME=http", dockerfile)
         self.assertIn(
@@ -39,6 +40,7 @@ class FrontendProxyConfigurationTests(unittest.TestCase):
                 "POSTGRES_DB": "lyftix",
                 "POSTGRES_USER": "lyftix_user",
                 "POSTGRES_PASSWORD": "test-password",
+                "SYSTEM_METRICS_HOSTNAME": "host.example.test",
             }
         )
         environment.pop("LYFTIX_PUBLIC_SCHEME", None)

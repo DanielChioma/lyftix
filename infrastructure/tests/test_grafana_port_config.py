@@ -16,6 +16,7 @@ class GrafanaPortConfigurationTests(unittest.TestCase):
                 "POSTGRES_DB": "lyftix",
                 "POSTGRES_USER": "lyftix_user",
                 "POSTGRES_PASSWORD": "test-password",
+                "SYSTEM_METRICS_HOSTNAME": "host.example.test",
                 "GRAFANA_ADMIN_PASSWORD": "obsolete-test-value",
                 "GRAFANA_INITIAL_ADMIN_PASSWORD_FILE": "/dev/null",
             }
@@ -37,6 +38,11 @@ class GrafanaPortConfigurationTests(unittest.TestCase):
         configuration = json.loads(result.stdout)
         services = configuration["services"]
         grafana = services["grafana"]
+
+        self.assertEqual(
+            services["system-metrics-worker"]["environment"]["SYSTEM_METRICS_HOSTNAME"],
+            "host.example.test",
+        )
 
         self.assertEqual(
             grafana["ports"],
