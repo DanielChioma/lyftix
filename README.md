@@ -28,6 +28,8 @@ The project was built to replace disconnected activity logs with one private sys
 
 Lyftix is a modular monolith: one Spring Boot application owns the domain model, business rules, API, authentication, persistence, and analytics queries. Domain packages remain separated by responsibility without introducing distributed-service complexity. Python workers are independent ingestion processes, but they use the authenticated HTTP API rather than accessing PostgreSQL directly.
 
+For component responsibilities and data flows, see the [application architecture](docs/architecture/application-architecture.md).
+
 ```mermaid
 flowchart LR
     Browser[Browser] -->|Tailnet HTTPS| Serve[Tailscale Serve]
