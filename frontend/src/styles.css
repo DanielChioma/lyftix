@@ -199,7 +199,7 @@ p { line-height: 1.65; }
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(125px, 1fr)); gap: .75rem; }
 .kpi-card { min-width: 0; padding: 1rem; border-radius: .75rem; background: var(--surface-elevated); box-shadow: 0 8px 24px var(--shadow); }
 .kpi-card p { margin: 0; color: var(--text-soft); font-size: .78rem; font-weight: 700; }
-.kpi-card strong { display: block; margin-top: .3rem; color: var(--accent-emphasis); font-size: clamp(1.4rem, 3vw, 2rem); letter-spacing: -.04em; }
+.kpi-card strong { display: block; margin-top: .3rem; color: var(--accent-emphasis); font-size: clamp(1.4rem, 3vw, 2rem); letter-spacing: -.04em; overflow-wrap: anywhere; }
 .section-empty { margin: .75rem 0 0; color: var(--text-soft); font-size: .82rem; }
 .skeleton, .chart-skeleton { display: block; min-height: 5rem; border-radius: .75rem; background: linear-gradient(90deg, var(--skeleton-edge) 25%, var(--skeleton-center) 50%, var(--skeleton-edge) 75%); background-size: 200% 100%; animation: skeleton 1.4s ease-in-out infinite; }
 .chart-skeleton { min-height: 22rem; margin-top: 1rem; }

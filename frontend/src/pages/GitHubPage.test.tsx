@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { GitHubPage } from './GitHubPage'
 import { renderWithProviders } from '../test/renderApp'
@@ -31,6 +31,16 @@ it('renders backend analytics KPIs, ranked data, and history fields', async () =
   expect(screen.getAllByText('octocat/a-very-long-repository-name-that-must-wrap').length).toBeGreaterThan(0)
   expect(screen.getAllByText(/Merge an intentionally long/).length).toBeGreaterThan(0)
   expect(screen.queryByText('hidden-id')).not.toBeInTheDocument()
+})
+
+it('renders the complete long repository name in the most active repository KPI', async () => {
+  const repository = 'octocat/a-very-long-unbroken-repository-name-that-must-remain-fully-visible'
+  mockRequests({ ...analytics, countsByRepository: [{ repository, count: 8 }] })
+  renderWithProviders(<GitHubPage />, '/github')
+
+  const card = await screen.findByLabelText(`Most active repository: ${repository}`)
+  expect(card).toHaveClass('kpi-card')
+  expect(within(card).getByText(repository, { selector: 'strong' })).toBeInTheDocument()
 })
 
 it('uses the default date range and exact half-open history boundary', async () => {
