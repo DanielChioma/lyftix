@@ -127,33 +127,42 @@ The repository uses layered tests rather than relying on a single end-to-end sui
 - Worker tests use pytest for configuration, authentication, clients, parsers, mapping, checkpointing, scheduling, and host `/proc` calculations.
 - Infrastructure tests statically inspect resolved Compose and nginx behavior to protect network exposure, proxy trust, secrets, monitoring, and container configuration.
 
-Run the main suites from their component directories:
+Run the main suites from the repository root. Each component group uses a subshell,
+so completing one group does not change the working directory for the next:
 
 ```bash
 # Backend (Docker is required for Testcontainers)
-cd backend
-./mvnw test
+(
+  cd backend
+  ./mvnw test
+)
 
 # Frontend
-cd frontend
-npm ci
-npm run lint
-npm test
-npm run build
+(
+  cd frontend
+  npm ci
+  npm run lint
+  npm test
+  npm run build
+)
 
 # Workers
-cd workers
-python3.12 -m venv .venv
-. .venv/bin/activate
-python -m pip install -e '.[dev]'
-pytest
-ruff check .
+(
+  cd workers
+  python3.12 -m venv .venv
+  . .venv/bin/activate
+  python -m pip install -e '.[dev]'
+  pytest
+  ruff check .
+)
 
 # Infrastructure regression tests
-cd infrastructure
-python3 -m unittest discover -s tests -p 'test_*.py'
-docker compose config --quiet
-docker compose --profile workers config --quiet
+(
+  cd infrastructure
+  python3 -m unittest discover -s tests -p 'test_*.py'
+  docker compose config --quiet
+  docker compose --profile workers config --quiet
+)
 ```
 
 ## Production deployment
@@ -189,6 +198,10 @@ lyftix/
 ```
 
 ## Local development
+
+Run each numbered component command from the repository root in its own terminal.
+This keeps the long-running backend and frontend processes independent and makes
+each documented `cd` path unambiguous.
 
 ### Prerequisites
 
@@ -277,7 +290,7 @@ mounts and settings in `infrastructure/docker-compose.yml`.
 
 ### Full Compose deployment
 
-The full topology requires runtime environment values for PostgreSQL, allowed CORS origins, worker credentials, GitHub access, host-metric identity, and the Grafana initial-admin secret file. Review `infrastructure/docker-compose.yml` and `workers/.env.example`, then validate before starting:
+The full topology requires runtime environment values for PostgreSQL, allowed CORS origins, worker credentials, GitHub access, host-metric identity, and the Grafana initial-admin secret file. From the repository root, review `infrastructure/docker-compose.yml` and `workers/.env.example`, then validate before starting:
 
 ```bash
 cd infrastructure
