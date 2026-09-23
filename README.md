@@ -343,7 +343,6 @@ The responsive React interface presents wellbeing check-ins and analytics on a m
 - Configure a real Alertmanager notification receiver; the repository currently discards routed alerts.
 - Replace file-based coding-session import with an intentionally designed capture integration rather than inferring IDE activity.
 - Add user-management and recovery workflows if Lyftix moves beyond its current single-owner deployment model.
-- Add portfolio screenshots and deeper architecture decision records.
 - Potential future data sources include wearable/fitness integrations such as Amazfit and storage-health telemetry for the self-hosted server, subject to stable APIs and least-privilege access.
 
 ## Project status
