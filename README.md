@@ -1,5 +1,7 @@
 # Lyftix
 
+[![CI](https://github.com/DanielChioma/lyftix/actions/workflows/ci.yml/badge.svg)](https://github.com/DanielChioma/lyftix/actions/workflows/ci.yml)
+
 Lyftix is a self-hosted personal analytics platform that brings workout, GitHub, coding-session, daily check-in, and host-system data into one authenticated dashboard. It combines a Spring Boot API, a React application, scheduled Python ingestion workers, PostgreSQL, and a containerized monitoring stack.
 
 The project was built to replace disconnected activity logs with one private system that can answer practical questions across domains: how training changes over time, how coding and GitHub activity align, and how subjective energy, mood, stress, and sleep relate to daily output. The application deliberately presents correlations and comparisons rather than claiming causation.
