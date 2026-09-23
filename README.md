@@ -290,10 +290,12 @@ mounts and settings in `infrastructure/docker-compose.yml`.
 
 ### Full Compose deployment
 
-The full topology requires runtime environment values for PostgreSQL, allowed CORS origins, worker credentials, GitHub access, host-metric identity, and the Grafana initial-admin secret file. From the repository root, review `infrastructure/docker-compose.yml` and `workers/.env.example`, then validate before starting:
+The full topology requires runtime environment values for PostgreSQL, allowed CORS origins, worker credentials, GitHub access, host-metric identity, and the Grafana initial-admin secret file. From the repository root, copy the public environment template, replace its required and deployment-specific placeholders, and create the Grafana initial-admin password secret file separately as documented in `infrastructure/grafana/README.md`:
 
 ```bash
 cd infrastructure
+cp .env.example .env
+docker compose config --quiet
 docker compose --profile workers config --quiet
 docker compose --profile workers up -d --build
 ```
