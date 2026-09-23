@@ -244,20 +244,36 @@ npm run dev
 
 ### 4. Run workers locally
 
-Copy `workers/.env.example` to `workers/.env`, replace placeholder values, and install the package:
+Lyftix workers read configuration from process environment variables. Set up the
+local package and create a private environment file from the example:
 
 ```bash
 cd workers
 python3.12 -m venv .venv
 . .venv/bin/activate
 python -m pip install -e '.[dev]'
+cp .env.example .env
+```
+
+Replace the placeholders and configure the values needed by the worker being run.
+For `coding-sessions`, `CODING_SESSIONS_INPUT_PATH` must reference an existing,
+readable JSON Lines (JSONL) file. Copying `.env` alone does not load it; export its
+values into the current shell before running the desired command:
+
+```bash
+set -a
+. ./.env
+set +a
 
 lyftix-worker github
 lyftix-worker coding-sessions
 lyftix-worker system-metrics
 ```
 
-Scheduled variants are `github-schedule` and `system-metrics-schedule`. Local defaults collect metrics for the process environment; production host collection requires the explicit read-only mounts and settings in `infrastructure/docker-compose.yml`.
+Each command requires only its relevant configuration. Scheduled variants are
+`github-schedule` and `system-metrics-schedule`. Local defaults collect metrics for
+the process environment; production host collection requires the explicit read-only
+mounts and settings in `infrastructure/docker-compose.yml`.
 
 ### Full Compose deployment
 
