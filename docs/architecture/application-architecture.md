@@ -137,4 +137,4 @@ For operational telemetry, Spring Boot Actuator exposes application and Java vir
 
 ## Related documentation
 
-The root [README](../../README.md) summarizes capabilities, setup, and deployment. Production ingress, Docker network membership, host publications, and transport trust boundaries belong in a separate production-topology document; that document has not been added yet.
+The root [README](../../README.md) summarizes capabilities, setup, and deployment. Production ingress, Docker network membership, host publications, and transport trust boundaries are documented in the [production topology](production-topology.md).

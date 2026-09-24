@@ -26,6 +26,32 @@ The project was built to replace disconnected activity logs with one private sys
 - OpenAPI documentation, structured production logs, health checks, Prometheus metrics, provisioned Grafana dashboards, and alert rules.
 - Docker Compose deployment with isolated worker and database networks and loopback-only browser-facing ports.
 
+## Screenshots
+
+### Workout Analytics
+
+Persisted workouts drive KPI summaries, date-filtered history, charts, and workout analytics.
+
+![Workout Analytics dashboard](docs/img/workout-analytics.png)
+
+### System Metrics
+
+Lyftix's Linux host-metrics worker ingests CPU, memory, disk, and load data for historical system analysis.
+
+![System Metrics dashboard](docs/img/system-metrics.png)
+
+### Grafana Backend Overview
+
+Prometheus and Grafana expose production backend, Java virtual machine (JVM), and HTTP telemetry.
+
+![Grafana Backend Overview dashboard](docs/img/grafana-backend-overview.png)
+
+### Daily Check-ins mobile
+
+The responsive React interface presents wellbeing check-ins and analytics on a mobile viewport.
+
+![Daily Check-ins dashboard on mobile](docs/img/daily-check-ins-mobile.png)
+
 ## Architecture
 
 Lyftix is a modular monolith: one Spring Boot application owns the domain model, business rules, API, authentication, persistence, and analytics queries. Domain packages remain separated by responsibility without introducing distributed-service complexity. Python workers are independent ingestion processes, but they use the authenticated HTTP API rather than accessing PostgreSQL directly.
@@ -48,13 +74,13 @@ flowchart LR
     WorkerAPI --> PostgreSQL[(PostgreSQL)]
     Backend --> PostgreSQL
 
-    Backend -->|Actuator metrics| Prometheus[Prometheus]
+    Prometheus[Prometheus] -->|scrapes Actuator metrics| Backend
     PostgreSQL --> Exporter[postgres-exporter]
-    Exporter --> Prometheus
+    Prometheus -->|scrapes database metrics| Exporter
     Containers[Docker / containerd] --> cAdvisor[cAdvisor]
-    cAdvisor --> Prometheus
-    Prometheus --> Grafana[Grafana]
-    Prometheus --> Alertmanager[Alertmanager]
+    Prometheus -->|scrapes container metrics| cAdvisor
+    Grafana[Grafana] -->|PromQL queries| Prometheus
+    Prometheus -->|evaluated alerts| Alertmanager[Alertmanager]
 ```
 
 There are two intentionally separate concerns:
@@ -303,32 +329,6 @@ docker compose --profile workers up -d --build
 ```
 
 For production host disk metrics, create the dedicated directory documented in `workers/README.md`. A fresh Grafana data volume also requires an initial-admin password file; see `infrastructure/grafana/README.md`. Never commit `.env` files, tokens, passwords, or generated state.
-
-## Screenshots
-
-### Workout Analytics
-
-Persisted workouts drive KPI summaries, date-filtered history, charts, and workout analytics.
-
-![Workout Analytics dashboard](docs/img/workout-analytics.png)
-
-### System Metrics
-
-Lyftix's Linux host-metrics worker ingests CPU, memory, disk, and load data for historical system analysis.
-
-![System Metrics dashboard](docs/img/system-metrics.png)
-
-### Grafana Backend Overview
-
-Prometheus and Grafana expose production backend, Java virtual machine (JVM), and HTTP telemetry.
-
-![Grafana Backend Overview dashboard](docs/img/grafana-backend-overview.png)
-
-### Daily Check-ins mobile
-
-The responsive React interface presents wellbeing check-ins and analytics on a mobile viewport.
-
-![Daily Check-ins dashboard on mobile](docs/img/daily-check-ins-mobile.png)
 
 ## Engineering decisions and lessons
 
